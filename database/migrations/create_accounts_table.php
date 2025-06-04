@@ -1,0 +1,24 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('accounts', function (Blueprint $table) {
+            $table->uuid('account_id')->primary();
+            $table->enum('role', ['PASIEN', 'MEDIS', 'LAB']);
+            $table->char('patient_nik', 16)->unique();
+            $table->string('phone_number', 20);
+            $table->string('password', 128);
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('accounts');
+    }
+};
