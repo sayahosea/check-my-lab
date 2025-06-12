@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Laman Pasien</title>
+  <script src="https://cdn.tailwindcss.com"></script> 
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  <style>
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideIn {
+            from { transform: translateX(-100%); }
+            to { transform: translateX(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+        .animate-slide-in {
+            animation: slideIn 0.5s ease-out forwards;
+        }
+        .menu-item-hover {
+            position: relative;
+            overflow: hidden;
+        }
+         .menu-item-hover::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: currentColor;
+            transform: scaleX(0);
+            transform-origin: right;
+            transition: transform 0.3s ease-out;
+        }
+        .menu-item-hover:hover::after {
+            transform: scaleX(1);
+            transform-origin: left;
+        }
+    </style>
+
+</head>
+
+<body class="bg-gray-100 font-sans">
+
+  <!-- Sidebar -->
+    <div class="fixed top-0 left-0 h-full w-60 bg-[#a8dadc] px-4 py-6 shadow-lg">
+    <div class="flex items-center space-x-2 mb-10">
+      <img src="logopuskesmas.png" alt="Logo" class="w-20 h-20" />
+      <div>
+        <h1 class="text-xl font-bold text-black">CheckMyLab</h1>
+        <p class="text-sm text-black leading-tight">UPT Puskesmas<br>Baloi Permai</p>
+      </div>
+    </div>
+
+    <nav class="flex overflow-y-1">
+            <ul class="p-4 space-y-2">
+                <li class="animate-fade-in" style="animation-delay: 0.1s;">
+                    <a href="lamanpasien.html" class="flex items-center gap-4 p-2 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900 transition-colors duration-300 menu-item-hover">
+                        <i class="fas fa-home w-5 h-5"></i>
+                        Beranda
+                    </a>
+                </li>
+                <li class="animate-fade-in" style="animation-delay: 0.3s;">
+                    <a href="HasilUjiLab.html" class="flex items-center gap-4 p-2 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900 transition-colors duration-300 menu-item-hover">
+                        <i class="fas fa-vial w-5 h-5"></i>
+                        Hasil Uji Lab
+                    </a>
+                </li>
+            </ul>
+        </nav>
+  </div>
+
+  <!-- Main content area -->
+  <div class="ml-60 min-h-screen">
+    <!-- Navbar -->
+    <header class="flex justify-end items-center bg-white shadow px-5 py-3">
+      <div class="flex items-center gap-4">
+          <div class="sm:flex sm:gap-4">
+            <a
+            class="bg-[#a8dadc] hover:bg-[#7cbac0] text-black font-semibold px-4 py-2 rounded">
+              Keluar
+            </a>
+    </header>
+
+    <!-- Page Content -->
+    <main class="p-6">
+      <h1 class="text-2xl font-bold mb-4">Selamat datang di Website UPT Puskesmas Baloi Permai!</h1>
+
+        <div class="overflow-x-auto rounded border border-gray-300 shadow-sm mb-6">
+  <table class="min-w-full divide-y divide-gray-200 text-sm">
+    <thead class="bg-gray-100">
+      <tr>
+        <th colspan="2" class="text-center px-4 py-3 font-bold bg-[#bbe4e6] text-gray-900">
+          Data Diri Pasien
+        </th>
+      </tr>
+    </thead>
+    <tbody class="bg-white">
+      <tr class="border-t">
+        <td class="px-4 py-2 font-medium text-gray-900">NIK</td>
+        <td class="px-4 py-2 text-gray-700">1234567890123456</td>
+      </tr>
+      <tr class="border-t">
+        <td class="px-4 py-2 font-medium text-gray-900">Nama</td>
+        <td class="px-4 py-2 text-gray-700">Alldreno Hosea</td>
+      </tr>
+      <tr class="border-t">
+        <td class="px-4 py-2 font-medium text-gray-900">Tanggal Lahir</td>
+        <td class="px-4 py-2 text-gray-700">01 Januari 1990</td>
+      </tr>
+      <tr class="border-t">
+        <td class="px-4 py-2 font-medium text-gray-900">No. Telepon</td>
+        <td class="px-4 py-2 text-gray-700">081234567890</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="overflow-x-auto rounded border border-gray-300 shadow-sm">
+  <table class="min-w-full divide-y divide-gray-200 text-sm">
+    <thead class="bg-gray-100">
+      <tr>
+        <th colspan="2" class="text-center px-4 py-3 font-bold bg-[#bbe4e6] text-gray-900">
+          Panduan Sistem Informasi Hasil Laboratorium
+        </th>
+        <tr class="border-t">
+        <td class="flex justify-center px-4 py-2 font-medium text-gray-900 text-center">
+          <a href="https://youtu.be/G4142KR9A8I?si=7hI3Ntu_zxDX34S2" target="_blank">
+    <img src="youtube.png" alt="YouTube Thumbnail" width="560">
+</a>
+        </td>
+      </tr>
+      </tr>
+    </thead>
+</body>
+</html>
+
+     
+
+        
+                
+
+  

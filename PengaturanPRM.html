@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pengaturan PRM</title>
+  <script src="https://cdn.tailwindcss.com"></script> 
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+
+  <style>
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideIn {
+            from { transform: translateX(-100%); }
+            to { transform: translateX(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+        .animate-slide-in {
+            animation: slideIn 0.5s ease-out forwards;
+        }
+        .menu-item-hover {
+            position: relative;
+            overflow: hidden;
+        }
+        .menu-item-hover::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: currentColor;
+            transform: scaleX(0);
+            transform-origin: right;
+            transition: transform 0.3s ease-out;
+        }
+        .menu-item-hover:hover::after {
+            transform: scaleX(1);
+            transform-origin: left;
+        }
+    </style>
+
+</head>
+
+<body class="bg-gray-100 font-sans overflow-hidden">
+
+  <!-- Sidebar -->
+  <div class="fixed top-0 left-0 h-full w-60 bg-[#a8dadc] px-4 py-6 shadow-lg">
+    <div class="flex items-center space-x-2 mb-10">
+      <img src="logopuskesmas.png" alt="Logo" class="w-20 h-20" />
+      <div>
+        <h1 class="text-xl font-bold text-black">CheckMyLab</h1>
+        <p class="text-sm text-black leading-tight">UPT Puskesmas<br>Baloi Permai</p>
+      </div>
+    </div>
+
+    <nav class="flex overflow-y-1">
+            <ul class="p-4 space-y-2">
+                <li class="animate-fade-in" style="animation-delay: 0.1s;">
+                    <a href="menu-dashboard.html" class="flex items-center gap-4 p-2 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900 transition-colors duration-300 menu-item-hover">
+                        <i class="fas fa-home w-5 h-5"></i>
+                        Beranda
+                    </a>
+                </li>
+                <li class="animate-fade-in" style="animation-delay: 0.1s;">
+                    <a href="menu-pasien.html" class="flex items-center gap-4 p-2 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900 transition-colors duration-300 menu-item-hover">
+                        <i class="fas fa-user w-5 h-5"></i>
+                        Pasien
+                    </a>
+                </li>
+                <li class="animate-fade-in" style="animation-delay: 0.2s;">
+                    <a href="menu-pegawai.html" class="flex items-center gap-4 p-2 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900 transition-colors duration-300 menu-item-hover">
+                        <i class="fas fa-user-md w-5 h-5"></i>
+                        Pegawai
+                    </a>
+                </li>
+                <li class="animate-fade-in" style="animation-delay: 0.3s;">
+                    <a href="menu-hasil-uji-lab.html" class="flex items-center gap-4 p-2 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900 transition-colors duration-300 menu-item-hover">
+                        <i class="fas fa-vial w-5 h-5"></i>
+                        Hasil Uji Lab
+                    </a>
+                </li>
+                <li class="animate-fade-in" style="animation-delay: 0.4s;">
+                    <a href="PengaturanPRM.html" class="flex items-center gap-4 p-2 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900 transition-colors duration-300 menu-item-hover">
+                        <i class="fas fa-cog w-5 h-5"></i>
+                        Pengaturan Akun
+                    </a>
+                </li>
+            </ul>
+        </nav>
+  </div>
+
+  <!-- Main content area -->
+  <div class="ml-60 min-h-screen">
+    <!-- Navbar -->
+    <header class="flex justify-end items-center bg-white shadow px-5 py-3 ">
+      <div class="flex items-center gap-4">
+          <div class="sm:flex sm:gap-4">
+            <a
+            class="bg-[#a8dadc] hover:bg-[#7cbac0] text-black font-semibold px-4 py-2 rounded">
+              Keluar
+            </a>
+    </header>
+
+   <!-- Main Content -->
+  <main class="flex-1 p-6">
+    <!-- Header -->
+    <div class="bg-[#a8dadc] flex items-center px-4 py-3 rounded-t-lg shadow-sm">
+      <span class="text-xl font-bold mr-3">&larr;</span>
+      <h2 class="text-lg font-semibold">Pengaturan akun</h2>
+    </div>
+
+    <!-- Account Settings -->
+    <div class="bg-white shadow-md rounded-b-lg border border-t-0">
+      <div class="flex items-center justify-between px-4 py-4 border-b">
+        <span>Nomor Telepon</span>
+        <div class="flex items-center gap-2 text-blue-600">
+          <span>08********22</span>
+          <span class="text-xl">&rsaquo;</span>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between px-4 py-4 border-b">
+        <span>Kata Sandi</span>
+        <div class="flex items-center gap-2 text-blue-600">
+          <span>************</span>
+          <span class="text-xl">&rsaquo;</span>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between px-4 py-4">
+        <span>Bagian</span>
+        <div class="flex items-center gap-2 text-blue-600">
+          <span>Rekam Medis</span>
+          <span class="text-xl">&rsaquo;</span>
+        </div>
+      </div>
+    </div>
+  </main>
+</body>
+</html>
+
