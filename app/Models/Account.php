@@ -15,12 +15,15 @@ class Account extends Model
     protected $table = 'accounts';
     protected $primaryKey = 'account_id';
     protected $keyType = 'string';
+    public $timestamps = false;
     public $incrementing = false;
     protected $attributes = [
         'account_id' => null,
         'role' => 'PASIEN',
         'patient_nik' => null,
         'phone_number' => null,
-        'password' => null
+        'password' => null,
+        'patient_erm' => null,
+        'full_name' => null,
     ];
 }

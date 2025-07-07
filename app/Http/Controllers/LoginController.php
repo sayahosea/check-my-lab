@@ -11,21 +11,23 @@ class LoginController extends Controller
     public function index(Request $request)
     {
         $session = $request->session()->get('account_id');
-        if ($session) {
-            return redirect('/dashboard');
-        }
+        if ($session) return redirect('/dashboard');
 
         $account_type = $this->checkAccountType($request);
-        if (!$account_type) return view('pages.error', ['message'=>'Tipe akun tidak valid.']);
+        // fallback to pasien page as default log in page
+        if (!$account_type) return redirect('/login?akun=pasien');
 
-        if ($account_type == 'pasien') return view('login-pasien');
-        return view('login-puskesmas');
+        if ($account_type == 'pasien') return view('pasien.login');
+        return view('puskesmas.login');
     }
 
-    public function authenticate(Request $request)
+    public function auth(Request $request)
     {
         $account_type = $this->checkAccountType($request);
-        if (!$account_type) return view('error', ['message'=>'Tipe akun tidak valid.', 'url'=>'/']);
+        if (!$account_type) {
+            session()->flash('alert_msg', 'Tipe akun tidak valid');
+            return redirect('/login?akun=pasien');
+        }
 
         if ($account_type == 'pasien') {
             $validator = Validator::make($request->all(), [
@@ -33,39 +35,38 @@ class LoginController extends Controller
             ]);
         } else {
             $validator = Validator::make($request->all(), [
-                'phone_number' => 'required|string|min:10|max:20',
-                'password' => 'required|string|min:5|max:128'
+                'phone_number' => 'required|string|min:10|max:15',
+                'password' => 'required|string|min:5|max:32'
             ]);
         }
 
-        if ($validator->fails()) return view(
-            'error',
-            ['message'=>'Informasi akun tidak valid. Mohon periksa kembali.', 'url'=>'/login?akun=' . $account_type]
-        );
+        if ($validator->fails()) {
+            session()->flash('alert_msg', 'Informasi akun tidak valid. Mohon periksa kembali');
+            return redirect('/login?akun=' . $account_type);
+        }
 
         if ($account_type == 'pasien') {
             $nik = $request->input('nik');
-            $user = DB::table('accounts')->where('patient_nik', $nik)->first();
+            $user = DB::table('patient_accounts')->where('patient_nik', $nik)->first();
         } else {
-            $user = DB::table('accounts')->where(
+            $user = DB::table('user_accounts')->where(
                 'phone_number', $request->input('phone_number')
             )->first();
         }
 
         if ($user == null) {
-            return view(
-                'error',
-                ['message'=>'Maaf, akun tidak ditemukan.', 'url'=>'/login?akun=' . $account_type]
-            );
+            session()->flash('alert_msg', 'Maaf, akun tidak ditemukan');
+            return redirect('/login?akun=' . $account_type);
         }
 
         if ($account_type == 'puskesmas') {
-            $hashed = $user->password;
-            if (!password_verify($request->input('password'), $hashed)) {
-                return view(
-                    'error',
-                    ['message'=>'Maaf, kata sandi salah.', 'url'=>'/login?akun=' . $account_type]
-                );
+            $puskesmas = DB::table('puskesmas_accounts')
+                ->select('password')
+                ->where('account_id', $user->account_id)->first();
+
+            if (!password_verify($request->input('password'), $puskesmas->password)) {
+                session()->flash('alert_msg', 'Maaf, kata sandi yang Anda masukkan salah');
+                return redirect('/login?akun=puskesmas');
             }
         }
 

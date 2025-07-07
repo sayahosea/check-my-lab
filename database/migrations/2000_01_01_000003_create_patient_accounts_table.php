@@ -8,17 +8,15 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('accounts', function (Blueprint $table) {
-            $table->uuid('account_id')->primary();
-            $table->enum('role', ['PASIEN', 'MEDIS', 'LAB']);
+        Schema::create('patient_accounts', function (Blueprint $table) {
+            $table->uuid('account_id')->unique();
             $table->char('patient_nik', 16)->unique();
-            $table->string('phone_number', 20);
-            $table->string('password', 128);
+            $table->char('patient_erm', 8)->unique();
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('accounts');
+        Schema::dropIfExists('patient_accounts');
     }
 };

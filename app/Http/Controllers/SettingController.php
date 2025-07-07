@@ -6,16 +6,12 @@ use App\Utils\Utility;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
-use function Laravel\Prompts\table;
 
 class SettingController extends Controller
 {
     public function index(Request $request)
     {
-        $session = $request->session()->get('account_id');
-        if (!$session) return redirect('/');
-
-        $account = DB::table('accounts')->where('account_id', $session)->first();
+        $account = $request->attributes->get('user');
         if (!$account) return redirect('/logout');
 
         $role = $account->role;
@@ -28,84 +24,91 @@ class SettingController extends Controller
 
     public function update(Request $request)
     {
-        $acc_id = $request->session()->get('account_id');
-        if (!$acc_id) return redirect('/');
-
-        $account = DB::table('accounts')->where('account_id', $acc_id)->first();
+        $account = $request->attributes->get('user');
         if (!$account) return redirect('/logout');
 
+        $acc_id = $account->account_id;
         $role = $account->role;
+
         if ($role == 'MEDIS' || $role == 'LAB') {
             $validator = Validator::make($request->all(), [
+                'full_name' => 'required|string|min:3|max:60',
                 'phone_number' => 'required|string|min:10|max:20',
                 'password' => 'nullable|string|min:5|max:128'
             ]);
 
             if ($validator->fails()) {
-                return view(
-                    'error',
-                    ['message'=>'Informasi akun tidak valid. Mohon periksa kembali.', 'url'=>'/staffs']
-                );
+                session()->flash('alert_msg', 'Informasi akun tidak valid. Mohon periksa kembali');
+                session()->flash('alert_color', 'alert-error');
+                return redirect('/settings');
             }
 
+            $full_name = $request->input('full_name');
             $phone_number = $request->input('phone_number');
 
-            $other_account = DB::table('accounts')->where('phone_number', $phone_number)->first();
+            $other_account = DB::table('user_accounts')->where('phone_number', $phone_number)->first();
             if ($other_account && $other_account->account_id != $acc_id) {
-                return view(
-                    'error',
-                    ['message'=>'Nomor telepon sudah digunakan oleh akun lain.', 'url'=>'/staffs']
-                );
+                session()->flash('alert_msg', 'Nomor telepon sudah digunakan oleh akun lain');
+                session()->flash('alert_color', 'alert-error');
+                return redirect('/settings');
             }
 
-            if ($request->input('password')) {
-                $password = $request->input('password');
-                $hashed = Utility::hashPassword($password);
-            } else {
-                $password = $account->password;
+            $plainPassword = $request->input('password');
+            if ($plainPassword) {
+                $hashed = Utility::hashPassword($plainPassword);
             }
 
-            DB::table('accounts')
+            DB::table('user_accounts')
                 ->where('account_id', $acc_id)
                 ->update([
-                    'phone_number' => $phone_number,
-                    'password' => $hashed ?? $account->password
+                    'full_name' => $full_name,
+                    'phone_number' => $phone_number
                 ]);
 
-            $account->phone_number = $phone_number;
-            return view('puskesmas.settings', ["account" => $account, "message" => "Akun berhasil diperbarui.", "role" => $role]);
+            if ($plainPassword) {
+                DB::table('puskesmas_accounts')
+                    ->where('account_id', $acc_id)
+                    ->update([
+                        'password' => $hashed
+                    ]);
+            }
+
+            session()->flash('alert_msg', 'Data akun berhasil diperbarui');
+            session()->flash('alert_color', 'alert-success');
+            return redirect('/settings');
+
         } else {
+
             $validator = Validator::make($request->all(), [
+                'full_name' => 'required|string|min:3|max:60',
                 'phone_number' => 'required|string|min:10|max:20'
             ]);
 
             if ($validator->fails()) {
-                return view(
-                    'error',
-                    ['message'=>'Informasi akun tidak valid. Mohon periksa kembali.', 'url'=>'/staffs']
-                );
+                session()->flash('alert_msg', 'Informasi akun tidak valid. Mohon periksa kembali');
+                session()->flash('alert_color', 'alert-error');
+                return redirect('/settings');
             }
 
+            $full_name = $request->input('full_name');
             $phone_number = $request->input('phone_number');
-            $other_account = DB::table('accounts')->where('phone_number', $phone_number)->first();
+            $other_account = DB::table('user_accounts')->where('phone_number', $phone_number)->first();
             if ($other_account && $other_account->account_id != $acc_id) {
-                return view(
-                    'error',
-                    ['message'=>'Nomor telepon sudah digunakan oleh akun lain.', 'url'=>'/staffs']
-                );
+                session()->flash('alert_msg', 'Nomor telepon sudah digunakan oleh akun lain');
+                session()->flash('alert_color', 'alert-error');
+                return redirect('/settings');
             }
 
-            DB::table('accounts')
+            DB::table('user_accounts')
                 ->where('account_id', $acc_id)
                 ->update([
+                    'full_name' => $full_name,
                     'phone_number' => $phone_number
                 ]);
 
-            $account->phone_number = $phone_number;
-            return view(
-                'pasien.settings',
-                ["account" => $account, "message" => "Akun berhasil diperbarui."]
-            );
+            session()->flash('alert_msg', 'Data akun berhasil diperbarui');
+            session()->flash('alert_color', 'alert-success');
+            return redirect('/settings');
         }
     }
 }

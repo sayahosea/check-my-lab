@@ -14,7 +14,7 @@ return [
     | you may specify any of the other wonderful drivers provided here.
     |
     | Supported: "file", "cookie", "database", "apc",
-    |            "memcached", "redis", "dynamodb", "array"
+    | "memcached", "redis", "dynamodb", "array"
     |
     */
 
@@ -42,7 +42,7 @@ return [
     |
     | This option allows you to easily specify that all of your session data
     | should be encrypted before it is stored. All encryption will be run
-    | automatically by Laravel and you can use the Session like normal.
+    | automatically by Laravel, and you can use the Session like normal.
     |
     */
 
@@ -54,7 +54,7 @@ return [
     |--------------------------------------------------------------------------
     |
     | When using the native session driver, we need a location where session
-    | files may be stored. A default has been set for you but a different
+    | files may be stored. A default has been set for you, but a different
     | location may be specified. This is only needed for file sessions.
     |
     */
@@ -138,7 +138,7 @@ return [
     |
     | The session cookie path determines the path for which the cookie will
     | be regarded as available. Typically, this will be the root path of
-    | your application but you are free to change this when necessary.
+    | your application, but you are free to change this when necessary.
     |
     */
 
@@ -163,7 +163,7 @@ return [
     |--------------------------------------------------------------------------
     |
     | By setting this option to true, session cookies will only be sent back
-    | to the server if the browser has a HTTPS connection. This will keep
+    | to the server if the browser has an HTTPS connection. This will keep
     | the cookie from being sent to you when it can't be done securely.
     |
     */

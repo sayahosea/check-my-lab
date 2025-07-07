@@ -10,45 +10,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Kelola Akun Pasien</title>
     @vite('resources/css/app.css')
-
-
-    <style>
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        @keyframes slideIn {
-            from { transform: translateX(-100%); }
-            to { transform: translateX(0); }
-        }
-        .animate-fade-in {
-            animation: fadeIn 0.5s ease-out forwards;
-        }
-        .animate-slide-in {
-            animation: slideIn 0.5s ease-out forwards;
-        }
-        .menu-item-hover {
-            position: relative;
-            overflow: hidden;
-        }
-        .menu-item-hover::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background-color: currentColor;
-            transform: scaleX(0);
-            transform-origin: right;
-            transition: transform 0.3s ease-out;
-        }
-        .menu-item-hover:hover::after {
-            transform: scaleX(1);
-            transform-origin: left;
-        }
-    </style>
-
+    <link rel="stylesheet" href="{{ asset('/addon.css') }}">
 </head>
 
 <body class="bg-gray-100 font-sans overflow-hidden">
@@ -83,10 +45,10 @@
                     <form action="{{ url('/patients/edit') }}" method="POST" class="grid grid-cols-1 gap-4" enctype="multipart/form-data">
                         @csrf
                         <fieldset class="fieldset">
-                            <legend class="fieldset-legend">ID Akun</legend>
+                            <legend class="fieldset-legend">Nomor ERM</legend>
                             <input
-                                name="id_account" type="text" minlength="16" maxlength="16"
-                                value="{{ $id }}" pattern="^[0-9]+$" class="input"
+                                name="patient_erm" type="text"
+                                value="{{ $patient_acc->patient_erm }}" class="input"
                                 readonly />
                             <p class="label">Tidak dapat diubah</p>
                         </fieldset>
@@ -95,6 +57,13 @@
                             <input
                                 name="nik" type="text" minlength="16" maxlength="16"
                                 value="{{ $patient_acc->patient_nik }}" pattern="^[0-9]+$" class="input"
+                                required />
+                        </fieldset>
+                        <fieldset class="fieldset">
+                            <legend class="fieldset-legend">Nama Lengkap</legend>
+                            <input
+                                name="full_name" type="text" minlength="3" maxlength="60"
+                                value="{{ $patient_acc->full_name }}" class="input"
                                 required />
                         </fieldset>
                         <fieldset class="fieldset">

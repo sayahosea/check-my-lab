@@ -11,6 +11,9 @@ class LogoutController extends Controller
         if (!$session) return redirect('/');
 
         $request->session()->forget('account_id');
-        return view('logout');
+
+        $request->session()->flash('alert_msg', 'Anda Berhasil Keluar Akun');
+        $request->session()->flash('alert_color', 'alert-success');
+        return redirect()->route('index');
     }
 }

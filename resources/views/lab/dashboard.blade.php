@@ -3,45 +3,9 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Dasbor</title>
+    <title>Dasbor Laboran</title>
     @vite('resources/css/app.css')
-
-    <style>
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        @keyframes slideIn {
-            from { transform: translateX(-100%); }
-            to { transform: translateX(0); }
-        }
-        .animate-fade-in {
-            animation: fadeIn 0.5s ease-out forwards;
-        }
-        .animate-slide-in {
-            animation: slideIn 0.5s ease-out forwards;
-        }
-        .menu-item-hover {
-            position: relative;
-            overflow: hidden;
-        }
-        .menu-item-hover::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background-color: currentColor;
-            transform: scaleX(0);
-            transform-origin: right;
-            transition: transform 0.3s ease-out;
-        }
-        .menu-item-hover:hover::after {
-            transform: scaleX(1);
-            transform-origin: left;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ asset('/addon.css') }}">
 
 </head>
 

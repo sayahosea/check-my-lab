@@ -10,31 +10,26 @@ class DashboardController extends Controller
 {
     public function index(Request $request)
     {
-        $session = $request->session()->get('account_id');
-        if (!$session) return redirect('/');
-
-        $user = DB::table('accounts')->where('account_id', $session)->first();
-        if (!$user) return redirect('/logout');
-
+        $user = $request->attributes->get('user');
         $role = $user->role;
+
         if ($role == 'PASIEN') {
-            return view('pasien.dashboard');
-        } else if ( $role == 'LAB' || $role == 'MEDIS') {
-            $total_patients = $this->getPatientTotal();
-            $total_tests = $this->getTestTotal();
-            $total_staffs = $this->getStaffTotal();
-            return view(
-                strtolower($role) . '.dashboard',
-                compact("total_patients", "total_tests", "total_staffs")
-            );
-        } else {
-            return view('pages.error', ['message'=>'Akun tidak valid.']);
+            $patient = $request->attributes->get('patient');
+            return view('pasien.dashboard', compact('patient', 'user'));
         }
+
+        $total_patients = $this->getPatientTotal();
+        $total_tests = $this->getTestTotal();
+        $total_staffs = $this->getStaffTotal();
+        return view(
+            strtolower($role) . '.dashboard',
+            compact("total_patients", "total_tests", "total_staffs")
+        );
     }
 
     private function getPatientTotal(): int
     {
-        return DB::table('accounts')->where('role', 'PASIEN')->count();
+        return DB::table('patient_accounts')->count();
     }
 
     private function getTestTotal(): int
@@ -44,8 +39,7 @@ class DashboardController extends Controller
 
     private function getStaffTotal(): int
     {
-        return DB::table('accounts')
-            ->where('role', 'MEDIS')
+        return DB::table('puskesmas_accounts')
             ->count();
     }
 }

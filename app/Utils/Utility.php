@@ -9,7 +9,7 @@ class Utility
 {
     public static function fakeNik(): string
     {
-        return (string) fake()->randomNumber(16, true);
+        return fake()->randomNumber(7, true) . fake()->randomNumber(7, true) . '11';
     }
 
     public static function fakeTestID(): string
@@ -26,7 +26,7 @@ class Utility
         $session = $request->session()->get('account_id');
         if (!$session) return redirect('/');
 
-        $user = DB::table('accounts')->where('account_id', $session)->first();
+        $user = DB::table('user_accounts')->where('account_id', $session)->first();
         if (!$user) return redirect('/logout');
 
         $role = $user->role;
@@ -35,7 +35,7 @@ class Utility
         return null;
     }
 
-    public static function hashPassword(string $plainText)
+    public static function hashPassword(string $plainText): String
     {
         $options = [
             'memory_cost' => 65536, // 64MB
@@ -43,5 +43,11 @@ class Utility
             'threads' => 1,
         ];
         return password_hash($plainText, PASSWORD_ARGON2ID, $options);
+    }
+
+    public static function generateERM(): string
+    {
+        $erm_number = mt_rand(1, 10000);
+        return sprintf("ERM%05d", $erm_number);
     }
 }

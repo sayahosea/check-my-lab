@@ -16,13 +16,9 @@ class StaffController extends Controller
 {
     public function index(Request $request): RedirectResponse|View
     {
-        $session = $request->session()->get('account_id');
-        if (!$session) return redirect('/');
-
-        $user = DB::table('accounts')->where('account_id', $session)->first();
-        if (!$user) return redirect('/logout');
-
+        $user = $request->attributes->get('user');
         $role = $user->role;
+
         if ($role != 'MEDIS') return redirect('/dashboard');
 
         $staffs = $this->getFewStaffs();
@@ -32,12 +28,7 @@ class StaffController extends Controller
 
     public function showCreateForm(Request $request)
     {
-        $session = $request->session()->get('account_id');
-        if (!$session) return redirect('/');
-
-        $user = DB::table('accounts')->where('account_id', $session)->first();
-        if (!$user) return redirect('/logout');
-
+        $user = $request->attributes->get('user');
         $role = $user->role;
         if ($role != 'MEDIS') return redirect('/dashboard');
 
@@ -48,7 +39,7 @@ class StaffController extends Controller
     {
         Utility::checkAuth($request);
 
-        $staff_acc = DB::table('accounts')
+        $staff_acc = DB::table('puskesmas')
             ->select(['role', 'phone_number'])
             ->where(function($query) {
                 $query->where('role', 'LAB')
@@ -56,7 +47,10 @@ class StaffController extends Controller
             })
             ->where('account_id', $id)->first();
 
-        if (!$staff_acc) return view('error', ['message'=>'Akun tidak ditemukan.', 'url'=>'/staffs']);
+        if (!$staff_acc) {
+            session()->flash('alert_msg', 'Akun tidak ditemukan');
+            return redirect('/staffs');
+        }
 
         $role = $staff_acc->role;
         return view('medis.staff-edit', compact('staff_acc', 'id', 'role'));
@@ -67,43 +61,50 @@ class StaffController extends Controller
         Utility::checkAuth($request);
 
         $validator = Validator::make($request->all(), [
-            'phone_number' => 'required|string|min:10|max:20',
+            'full_name' => 'required|string|min:3|max:60',
+            'phone_number' => 'required|string|min:10|max:15',
             'password' => 'required|string|min:5|max:128',
             'role' => 'required|string|in:MEDIS,LAB'
         ]);
 
         if ($validator->fails()) {
-            return view(
-                'error',
-                ['message'=>'Informasi akun tidak valid. Mohon periksa kembali.', 'url'=>'/staffs']
-            );
+            session()->flash('alert_msg', 'Informasi akun tidak valid. Mohon periksa kembali datanya');
+            session()->flash('alert_color', 'alert-error');
+            return redirect('/staffs/create');
         }
 
         $phone_number = $request->input('phone_number');
-        $password = $request->input('password');
-        $role = $request->input('role');
 
-        $other_account = DB::table('accounts')->where('phone_number', $phone_number)->first();
+        $other_account = DB::table('user_accounts')->where('phone_number', $phone_number)->first();
         if ($other_account) {
-            return view(
-                'error',
-                ['message'=>'Nomor telepon sudah digunakan oleh akun lain.', 'url'=>'/staffs/create']
-            );
+            session()->flash('alert_msg', 'Nomor telepon sudah digunakan oleh akun lain');
+            session()->flash('alert_color', 'alert-error');
+            return redirect('/staffs/create');
         }
 
+        $role = $request->input('role');
+        $password = $request->input('password');
         $hashed = Utility::hashPassword($password);
-        $id = Str::uuid();
-        DB::table('accounts')->insert([
-            "account_id" => $id,
-            "role" => $role,
-            "patient_nik" => null,
-            "phone_number" => $phone_number,
-            "password" => $hashed
-        ]);
 
-        $staffs = $this->getFewStaffs();
-        $message = "Berhasil membuat akun staff dengan nomor telepon " . $phone_number . ".";
-        return view('medis.staff-list', compact('staffs', 'message'));
+        if ($role == 'MEDIS') {
+            // membuat akun tim rekam medis
+            DB::select('CALL CreateMedicAccount(?, ?, ?)', [
+                $request->input('full_name'),
+                $request->get('phone_number'),
+                $hashed
+            ]);
+        } else {
+            // membuat akun laboran
+            DB::select('CALL CreateLabAccount(?, ?, ?)', [
+                $request->input('full_name'),
+                $request->get('phone_number'),
+                $hashed
+            ]);
+        }
+
+        session()->flash('alert_msg', 'Berhasil Membuat Akun');
+        session()->flash('alert_color', 'alert-success');
+        return redirect('/staffs');
     }
 
     public function update(Request $request)
@@ -117,17 +118,16 @@ class StaffController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return view(
-                'error',
-                ['message'=>'Informasi akun tidak valid. Mohon periksa kembali.', 'url'=>'/staffs']
-            );
+            session()->flash('alert_msg', 'Informasi akun tidak valid. Mohon periksa kembali');
+            session()->flash('alert_color', 'alert-error');
+            return redirect('/staffs');
         }
 
         $id = $request->input('id_account');
         $phone_number = $request->input('phone_number');
         $role = $request->input('role');
 
-        $account = DB::table('accounts')->where('account_id', $id)->first();
+        $account = DB::table('user_accounts')->where('account_id', $id)->first();
         if (!$account) {
             return view(
                 'error',
@@ -135,7 +135,7 @@ class StaffController extends Controller
             );
         }
 
-        $other_account = DB::table('accounts')->where('phone_number', $phone_number)->first();
+        $other_account = DB::table('user_accounts')->where('phone_number', $phone_number)->first();
         if ($other_account && $other_account->account_id != $id) {
             return view(
                 'error',
@@ -155,30 +155,31 @@ class StaffController extends Controller
             }
         }
 
-        DB::table('accounts')
+        DB::table('user_accounts')
             ->where('account_id', $id)
             ->update([
                 'phone_number' => $phone_number,
-                'role' => $role,
-                'password' => $hashed ?? $account->password
+                'role' => $role
             ]);
 
-        $staff_acc = new stdClass();
-        $staff_acc->role = $role;
-        $staff_acc->phone_number = $phone_number;
+        if ($password) {
+            DB::table('puskesmas_accounts')
+                ->where('account_id', $id)
+                ->update([
+                    'password' => $hashed
+                ]);
+        }
 
-        $message = 'Akun ' . $role . ' berhasil diperbarui.';
-        return view(
-            'medis.staff-edit',
-            compact('staff_acc', 'id', 'message')
-        );
+        session()->flash('alert_msg', 'Akun ' . $role . ' berhasil diperbarui.');
+        session()->flash('alert_color', 'alert-success');
+        return redirect('/staffs');
     }
 
     public function delete(Request $request, string $id)
     {
         Utility::checkAuth($request);
-        $account = DB::table('accounts')
-            ->select(['phone_number'])
+        $account = DB::table('user_accounts')
+            ->select(['phone_number', 'full_name'])
             ->where('account_id', $id)->first();
 
         if (!$account) return view('error', ['message'=>'Akun tidak ditemukan.', 'url'=>'/staffs']);
@@ -186,38 +187,25 @@ class StaffController extends Controller
         // Jika user mengklik tombol "Yakin" pada halaman konfirmasi
         $confirm = $request->query('confirm');
         if ($confirm == 'true') {
-            DB::table('accounts')->where('account_id', $id)->delete();
-            $staffs = $this->getFewStaffs();
-            $message = "Akun " . $account->phone_number . " berhasil dihapus";
-            return view(
-                'medis.staff-list', compact('staffs', 'message')
-            );
+            DB::table('puskesmas_accounts')->where('account_id', $id)->delete();
+            DB::table('user_accounts')->where('account_id', $id)->delete();
+
+            session()->flash('alert_msg', "Akun " . $account->full_name . " berhasil dihapus.");
+            session()->flash('alert_color', 'alert-success');
+            return redirect('/staffs');
         }
 
-        return view('medis.staff-delete', ["phone_number" => $account->phone_number, "id" => $id]);
+        return view(
+            'medis.staff-delete',
+            ["account" => $account, "id" => $id]
+        );
     }
 
     public function getFewStaffs(): Collection
     {
-        return DB::table('accounts')
-            ->select(['role', 'phone_number', 'account_id'])
-            ->where('role', 'MEDIS')
-            ->orWhere('role', 'LAB')->limit(8)
+        return DB::table('puskesmas')
+            ->select(['role', 'full_name', 'phone_number', 'account_id'])
+            ->limit(8)
             ->get();
-    }
-
-    private function checkAuth(Request $request)
-    {
-        $session = $request->session()->get('account_id');
-        if (!$session) return redirect('/');
-
-        $user = DB::table('accounts')->where('account_id', $session)->first();
-        if (!$user) return redirect('/logout');
-
-        $role = $user->role;
-        if ($role != 'MEDIS') return redirect('/');
-
-        echo "test123";
-        return null;
     }
 }

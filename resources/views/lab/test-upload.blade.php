@@ -5,43 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Unggah Hasil Uji</title>
     @vite('resources/css/app.css')
-
-    <style>
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        @keyframes slideIn {
-            from { transform: translateX(-100%); }
-            to { transform: translateX(0); }
-        }
-        .animate-fade-in {
-            animation: fadeIn 0.5s ease-out forwards;
-        }
-        .animate-slide-in {
-            animation: slideIn 0.5s ease-out forwards;
-        }
-        .menu-item-hover {
-            position: relative;
-            overflow: hidden;
-        }
-        .menu-item-hover::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background-color: currentColor;
-            transform: scaleX(0);
-            transform-origin: right;
-            transition: transform 0.3s ease-out;
-        }
-        .menu-item-hover:hover::after {
-            transform: scaleX(1);
-            transform-origin: left;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ asset('/addon.css') }}">
 
 </head>
 
@@ -54,6 +18,14 @@
     <div class="ml-60 min-h-screen">
         <!-- Navbar -->
         <x-navbar></x-navbar>
+
+        @if(session('alert_msg'))
+            <div class="toast toast-top toast-center">
+                <div class="alert alert-error">
+                    <span>{{ session('alert_msg') }}</span>
+                </div>
+            </div>
+        @endif
 
         <!-- Page Content -->
         <main class="ml-10 p-6">
@@ -71,7 +43,7 @@
                                 required />
                         </fieldset>
                         <fieldset class="fieldset">
-                            <input type="file" class="file-input" name="file" required />
+                            <input type="file" class="file-input" name="file" accept=".pdf" required />
                         </fieldset>
                         <input type="submit" class="btn btn-info mt-2 btn-wide" value="Unggah">
                     </form>

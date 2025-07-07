@@ -3,62 +3,33 @@
     'role' => null
 ])
 
-    <!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="id">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Setelan Akun</title>
     @vite('resources/css/app.css')
-
-
-    <style>
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        @keyframes slideIn {
-            from { transform: translateX(-100%); }
-            to { transform: translateX(0); }
-        }
-        .animate-fade-in {
-            animation: fadeIn 0.5s ease-out forwards;
-        }
-        .animate-slide-in {
-            animation: slideIn 0.5s ease-out forwards;
-        }
-        .menu-item-hover {
-            position: relative;
-            overflow: hidden;
-        }
-        .menu-item-hover::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background-color: currentColor;
-            transform: scaleX(0);
-            transform-origin: right;
-            transition: transform 0.3s ease-out;
-        }
-        .menu-item-hover:hover::after {
-            transform: scaleX(1);
-            transform-origin: left;
-        }
-    </style>
-
+    <link rel="stylesheet" href="{{ asset('/addon.css') }}">
 </head>
 
 <body class="bg-gray-100 font-sans overflow-hidden">
 
+    <!-- Sidebar -->
     <x-sidebar.pasien></x-sidebar.pasien>
 
     <!-- Main content area -->
     <div class="ml-60 min-h-screen">
         <!-- Navbar -->
         <x-navbar></x-navbar>
+
+        @if(session('alert_msg'))
+            <div class="toast toast-top toast-center">
+                <div class="alert {{ session('alert_color') }}">
+                    <span>{{ session('alert_msg') }}</span>
+                </div>
+            </div>
+        @endif
 
         <!-- Page Content -->
         <main class="ml-10 p-6">
@@ -78,6 +49,14 @@
                     <form action="{{ url('/settings') }}" method="POST" class="grid grid-cols-1 gap-4" enctype="multipart/form-data">
                         @csrf
                         <fieldset class="fieldset">
+                            <legend class="fieldset-legend">Nama Lengkap</legend>
+                            <input
+                                name="full_name"
+                                type="text" value="{{ $account->full_name }}" class="input"
+                                minlength="3" maxlength="60"
+                                required />
+                        </fieldset>
+                        <fieldset class="fieldset">
                             <legend class="fieldset-legend">Nomor Telepon</legend>
                             <input
                                 name="phone_number"
@@ -85,9 +64,9 @@
                                 minlength="10" maxlength="14" pattern="^08\d{8,12}$"
                                 required />
                         </fieldset>
-                        <input type="submit" class="btn mt-2 btn-wide" value="Ubah Data Akun">
+                        <input type="submit" class="btn mt-2 btn-wide btn-success" value="Ubah Data Akun">
                     </form>
-                    <a class="btn mt-2 btn-wide btn-warning" href="{{ url('/') }}">Batal</a>
+                    <a class="btn mt-2 btn-wide btn-error" href="{{ url('/dashboard') }}">Batal</a>
                 </div>
             </div>
         </main>

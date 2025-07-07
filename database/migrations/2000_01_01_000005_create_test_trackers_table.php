@@ -8,10 +8,11 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('test_results', function (Blueprint $table) {
-            $table->char('test_id', 10);
-            $table->char('patient_nik', 16);
-            $table->binary('test_file');
+        Schema::create('test_trackers', function (Blueprint $table) {
+            $table->char('test_id', 10)->primary();
+            $table->enum('activity', ['RESULT_TIME', 'MESSAGE_SENT_TIME', 'MODIFY_TIME', 'READ', 'DOWNLOAD']);
+            $table->timestamp('time');
+
         });
     }
 
