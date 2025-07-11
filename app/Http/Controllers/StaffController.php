@@ -18,7 +18,6 @@ class StaffController extends Controller
     {
         $user = $request->attributes->get('user');
         $role = $user->role;
-
         if ($role != 'MEDIS') return redirect('/dashboard');
 
         $staffs = $this->getFewStaffs();
@@ -26,18 +25,11 @@ class StaffController extends Controller
         return view('medis.staff-list', compact('staffs'));
     }
 
-    public function showCreateForm(Request $request)
+    public function updateForm(Request $request, string $id)
     {
         $user = $request->attributes->get('user');
         $role = $user->role;
         if ($role != 'MEDIS') return redirect('/dashboard');
-
-        return view('medis.staff-create');
-    }
-
-    public function showEditForm(Request $request, string $id)
-    {
-        Utility::checkAuth($request);
 
         $staff_acc = DB::table('puskesmas')
             ->select(['role', 'phone_number'])
@@ -58,7 +50,9 @@ class StaffController extends Controller
 
     public function store(Request $request)
     {
-        Utility::checkAuth($request);
+        $user = $request->attributes->get('user');
+        $role = $user->role;
+        if ($role != 'MEDIS') return redirect('/dashboard');
 
         $validator = Validator::make($request->all(), [
             'full_name' => 'required|string|min:3|max:60',
@@ -70,7 +64,7 @@ class StaffController extends Controller
         if ($validator->fails()) {
             session()->flash('alert_msg', 'Informasi akun tidak valid. Mohon periksa kembali datanya');
             session()->flash('alert_color', 'alert-error');
-            return redirect('/staffs/create');
+            return redirect('/staffs');
         }
 
         $phone_number = $request->input('phone_number');
@@ -79,7 +73,7 @@ class StaffController extends Controller
         if ($other_account) {
             session()->flash('alert_msg', 'Nomor telepon sudah digunakan oleh akun lain');
             session()->flash('alert_color', 'alert-error');
-            return redirect('/staffs/create');
+            return redirect('/staffs');
         }
 
         $role = $request->input('role');
@@ -88,14 +82,14 @@ class StaffController extends Controller
 
         if ($role == 'MEDIS') {
             // membuat akun tim rekam medis
-            DB::select('CALL CreateMedicAccount(?, ?, ?)', [
+            DB::select('CALL sp_create_medic_account(?, ?, ?)', [
                 $request->input('full_name'),
                 $request->get('phone_number'),
                 $hashed
             ]);
         } else {
             // membuat akun laboran
-            DB::select('CALL CreateLabAccount(?, ?, ?)', [
+            DB::select('CALL sp_create_lab_account(?, ?, ?)', [
                 $request->input('full_name'),
                 $request->get('phone_number'),
                 $hashed
@@ -109,7 +103,9 @@ class StaffController extends Controller
 
     public function update(Request $request)
     {
-        Utility::checkAuth($request);
+        $user = $request->attributes->get('user');
+        $role = $user->role;
+        if ($role != 'MEDIS') return redirect('/dashboard');
 
         $validator = Validator::make($request->all(), [
             'id_account' => 'required|string|min:36|max:36',
@@ -177,7 +173,10 @@ class StaffController extends Controller
 
     public function delete(Request $request, string $id)
     {
-        Utility::checkAuth($request);
+        $user = $request->attributes->get('user');
+        $role = $user->role;
+        if ($role != 'MEDIS') return redirect('/dashboard');
+
         $account = DB::table('user_accounts')
             ->select(['phone_number', 'full_name'])
             ->where('account_id', $id)->first();

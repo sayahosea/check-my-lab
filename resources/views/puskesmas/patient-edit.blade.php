@@ -44,27 +44,31 @@
                 <div class="bg-white shadow rounded p-4">
                     <form action="{{ url('/patients/edit') }}" method="POST" class="grid grid-cols-1 gap-4" enctype="multipart/form-data">
                         @csrf
+                        <input
+                            name="account_id" minlength="36" max="36"
+                            value="{{ $patient_acc->account_id }}" class="input hidden"
+                            readonly
+                        />
                         <fieldset class="fieldset">
                             <legend class="fieldset-legend">Nomor ERM</legend>
                             <input
-                                name="patient_erm" type="text"
+                                name="patient_erm" minlength="4" max="8" pattern="^ERM\d{4,8}$"
                                 value="{{ $patient_acc->patient_erm }}" class="input"
-                                readonly />
-                            <p class="label">Tidak dapat diubah</p>
+                            />
                         </fieldset>
                         <fieldset class="fieldset">
                             <legend class="fieldset-legend">NIK</legend>
                             <input
                                 name="nik" type="text" minlength="16" maxlength="16"
                                 value="{{ $patient_acc->patient_nik }}" pattern="^[0-9]+$" class="input"
-                                required />
+                            />
                         </fieldset>
                         <fieldset class="fieldset">
                             <legend class="fieldset-legend">Nama Lengkap</legend>
                             <input
                                 name="full_name" type="text" minlength="3" maxlength="60"
                                 value="{{ $patient_acc->full_name }}" class="input"
-                                required />
+                            />
                         </fieldset>
                         <fieldset class="fieldset">
                             <legend class="fieldset-legend">Nomor WhatsApp</legend>

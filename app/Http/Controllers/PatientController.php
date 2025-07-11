@@ -15,22 +15,20 @@ class PatientController extends Controller
     {
         $user = $request->attributes->get('user');
         $role = $user->role;
-
         if ($role == 'PASIEN') return redirect('/dashboard');
 
         $patients = $this->getFewPatients();
         return view('puskesmas.patient-list', compact('patients', 'role'));
     }
 
-    public function showEditForm(Request $request, string $account_id)
+    public function updateForm(Request $request, string $account_id)
     {
         $user = $request->attributes->get('user');
         $role = $user->role;
-
         if ($role == 'PASIEN') return redirect('/dashboard');
 
         $patient_acc = DB::table('patients')
-            ->select(['patient_nik', 'phone_number', 'patient_erm', 'full_name'])
+            ->select(['account_id', 'patient_nik', 'phone_number', 'patient_erm', 'full_name'])
             ->where('account_id', $account_id)->first();
 
         if (!$patient_acc) return view('error', ['message' => 'Akun tidak ditemukan.', 'url' => '/patients']);
@@ -38,61 +36,56 @@ class PatientController extends Controller
         return view('puskesmas.patient-edit', compact('patient_acc', 'account_id', 'role'));
     }
 
-    public function showCreateForm(Request $request)
-    {
-        $user = $request->attributes->get('user');
-        $role = $user->role;
-
-        if ($role != 'MEDIS') return redirect('/dashboard');
-
-        return view('medis.patient-create');
-    }
-
     public function update(Request $request)
     {
         $user = $request->attributes->get('user');
         $role = $user->role;
-
         if ($role == 'PASIEN') return redirect('/dashboard');
 
         $validator = Validator::make($request->all(), [
-            'patient_erm' => 'required|string|min:8|max:8',
-            'nik' => 'required|string|min:16|max:16',
-            'full_name' => 'required|string|min:3|max:60',
-            'phone_number' => 'required|string|min:10|max:15'
+            'account_id' => 'required|string|exists:patient_accounts,account_id',
+            'patient_erm' => 'nullable|string|min:4|max:8',
+            'nik' => 'nullable|string|min:16|max:16',
+            'full_name' => 'nullable|string|min:3|max:60',
+            'phone_number' => 'nullable|string|min:10|max:15'
         ]);
 
         if ($validator->fails()) {
             session()->flash('alert_msg', 'Informasi akun tidak valid. Mohon periksa kembali');
             session()->flash('alert_color', 'alert-error');
-            return redirect('/patients/edit/' . $request->input('account_id'));
+            return redirect('/patients');
         }
 
+        $account_id = $request->input('account_id');
         $patient_erm = $request->input('patient_erm');
         $nik = $request->input('nik');
         $full_name = $request->input('full_name');
         $phone_number = $request->input('phone_number');
 
-        $account = DB::table('patients')->where('patient_erm', $patient_erm)->first();
+        $account = DB::table('patients')->where('account_id', $account_id)->first();
         if (!$account) {
             session()->flash('alert_msg', 'Akun tidak ditemukan');
             session()->flash('alert_color', 'alert-error');
             return redirect('/patients');
         }
 
-        // memastikan NIK baru belum dipakai akun lain
-        $other_patient = DB::table('patients')->where('patient_nik', $nik)->first();
-        if ($other_patient && $other_patient->patient_erm != $patient_erm) {
-            session()->flash('alert_msg', 'NIK sudah digunakan oleh akun pasien lain');
-            session()->flash('alert_color', 'alert-error');
-            return redirect('/patients');
+        if ($nik) {
+            // memastikan NIK baru belum dipakai akun lain
+            $other_patient = DB::table('patients')->where('patient_nik', $nik)->first();
+            if ($other_patient && $other_patient->patient_erm != $patient_erm) {
+                session()->flash('alert_msg', 'NIK sudah digunakan oleh akun pasien lain');
+                session()->flash('alert_color', 'alert-error');
+                return redirect('/patients');
+            }
         }
 
-        $phone_number_taken = DB::table('patients')->where('phone_number', $phone_number)->first();
-        if ($phone_number_taken) {
-            session()->flash('alert_msg', 'Nomor telepon sudah digunakan oleh akun pasien lain');
-            session()->flash('alert_color', 'alert-error');
-            return redirect('/patients/create');
+        if ($phone_number) {
+            $phone_number_taken = DB::table('user_accounts')->where('phone_number', $phone_number)->first();
+            if ($phone_number_taken && $phone_number_taken->account_id != $account_id) {
+                session()->flash('alert_msg', 'Nomor telepon sudah digunakan oleh akun lain');
+                session()->flash('alert_color', 'alert-error');
+                return redirect('/patients');
+            }
         }
 
         DB::table('user_accounts')
@@ -105,58 +98,78 @@ class PatientController extends Controller
         DB::table('patient_accounts')
             ->where('account_id', $account->account_id)
             ->update([
+                'patient_erm' => $patient_erm,
                 'patient_nik' => $nik
             ]);
 
         session()->flash('alert_msg', 'Akun pasien berhasil diperbarui');
         session()->flash('alert_color', 'alert-success');
-        return redirect('/patients/edit/' . $account->account_id);
+        return redirect('/patients');
+    }
+
+    public function storeForm(Request $request)
+    {
+        $user = $request->attributes->get('user');
+        $role = $user->role;
+        if ($role != 'MEDIS') return redirect('/dashboard');
+
+        return view('medis.patient-create');
     }
 
     public function store(Request $request)
     {
         $user = $request->attributes->get('user');
         $role = $user->role;
-
-        if ($role != 'MEDIS') return redirect('/dashboard');
+        if ($role == 'PASIEN') return redirect('/dashboard');
 
         $validator = Validator::make($request->all(), [
-            'nik' => 'required|string|min:16|max:16',
-            'full_name' => 'required|string|min:3|max:60',
-            'phone_number' => 'required|string|min:10|max:15'
+            'patient_erm' => 'nullable|string|min:4|max:8',
+            'full_name' => 'nullable|string|min:3|max:60',
+            'nik' => 'nullable|string|min:16|max:16',
+            'phone_number' => 'nullable|string|min:10|max:15'
         ]);
 
         if ($validator->fails()) {
             session()->flash('alert_msg', 'Informasi akun tidak valid. Mohon periksa kembali');
             session()->flash('alert_color', 'alert-error');
-            return redirect('/patients/create');
+            return redirect('/patients');
+        }
+
+        $patient_erm = $request->input('patient_erm');
+        if ($patient_erm) {
+            $other_patient = DB::table('patients')->where('patient_erm', $patient_erm)->first();
+            if ($other_patient) {
+                session()->flash('alert_msg', 'Nomor ERM sudah digunakan oleh akun pasien lain');
+                session()->flash('alert_color', 'alert-error');
+                return redirect('/patients');
+            }
         }
 
         $nik = $request->input('nik');
-
-        $other_patient = DB::table('patients')->where('patient_nik', $nik)->first();
-        if ($other_patient) {
-            session()->flash('alert_msg', 'NIK sudah digunakan oleh akun pasien lain');
-            session()->flash('alert_color', 'alert-error');
-            return redirect('/patients/create');
+        if ($nik) {
+            $other_patient = DB::table('patients')->where('patient_nik', $nik)->first();
+            if ($other_patient) {
+                session()->flash('alert_msg', 'NIK sudah digunakan oleh akun pasien lain');
+                session()->flash('alert_color', 'alert-error');
+                return redirect('/patients');
+            }
         }
 
         $phone_number = $request->input('phone_number');
-        $phone_number_taken = DB::table('patients')->where('phone_number', $phone_number)->first();
-        if ($phone_number_taken) {
-            session()->flash('alert_msg', 'Nomor telepon sudah digunakan oleh akun pasien lain');
-            session()->flash('alert_color', 'alert-error');
-            return redirect('/patients/create');
+        if ($phone_number) {
+            $phone_number_taken = DB::table('user_accounts')->where('phone_number', $phone_number)->first();
+            if ($phone_number_taken) {
+                session()->flash('alert_msg', 'Nomor telepon sudah digunakan oleh akun lain');
+                session()->flash('alert_color', 'alert-error');
+                return redirect('/patients');
+            }
         }
 
-        $erm_number = mt_rand(1, 10000);
-        $erm = sprintf("ERM%05d", $erm_number);
-
-        DB::select('CALL CreatePatientAccount(?, ?, ?, ?)', [
+        DB::select('CALL sp_create_patient_account(?, ?, ?, ?)', [
             $request->input('full_name'),
             $phone_number,
             $nik,
-            $erm
+            $patient_erm
         ]);
 
         session()->flash('alert_msg', 'Berhasil membuat akun pasien dengan NIK ' . $nik);
@@ -168,7 +181,6 @@ class PatientController extends Controller
     {
         $user = $request->attributes->get('user');
         $role = $user->role;
-
         if ($role == 'PASIEN') return redirect('/dashboard');
 
         $patient_acc = DB::table('patients')
@@ -198,7 +210,6 @@ class PatientController extends Controller
     public function fetch(Request $request) {
         $user = $request->attributes->get('user');
         $role = $user->role;
-
         if ($role == 'PATIENT') return response()->json(['error' => 'Bad Request'], 400);
 
         $page = $request->query('page');
@@ -225,6 +236,31 @@ class PatientController extends Controller
             ->limit(8)
             ->offset(($page - 1) * 8)
             ->get();
+    }
+
+    public function verify(Request $request) {
+        $user = $request->attributes->get('user');
+        $role = $user->role;
+        if ($role == 'PATIENT') return response()->json(['error' => 'Bad Request'], 400);
+
+        $account_id = $request->query('account_id');
+        if (!$account_id) return response()->json(['error' => 'Bad Request'], 400);
+        if (strlen($account_id) != 36) return response()->json(['error' => 'Bad Request'], 400);
+
+        $checked = $request->query('checked');
+        if (!$checked) return response()->json(['error' => 'Bad Request'], 400);
+        if ($checked !== 'true' && $checked !== 'false') return response()->json(['error' => 'Bad Request'], 400);
+
+        $patient = DB::table('patients')->where('account_id', $account_id)->first();
+        if (!$patient) return response()->json(['error' => 'Bad Request'], 400);
+
+        DB::table('patient_accounts')
+            ->where('account_id', $account_id)
+            ->update([
+                'info_verified' => $checked === 'true' ? 1 : 0,
+            ]);
+
+        return response()->json(['message' => 'OK']);
     }
 
     public function getFewPatients(): Collection

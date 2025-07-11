@@ -50,4 +50,20 @@ class Utility
         $erm_number = mt_rand(1, 10000);
         return sprintf("ERM%05d", $erm_number);
     }
+
+    public static function getPatientTotal(): int
+    {
+        return DB::table('patient_accounts')->count();
+    }
+
+    public static function getTestTotal(): int
+    {
+        return DB::table('test_results')->count();
+    }
+
+    public static function getStaffTotal(): int
+    {
+        return DB::table('puskesmas_accounts')
+            ->count();
+    }
 }

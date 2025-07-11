@@ -27,14 +27,14 @@ class AccountExists
             $request->attributes->set('user', $user);
 
             if ($user->role == 'PASIEN') {
-                $patient = DB::table('patient_accounts')->where('account_id', $accountId)->first();
+                $patient = DB::table('patients')->where('account_id', $accountId)->first();
                 $request->attributes->set('patient', $patient);
             }
 
             return $next($request);
         } catch(QueryException $err) {
             return response()->view('error', [
-                'message' => 'Basis data tidak mempunyai izin untuk melakukan hal ini',
+                'message' => 'Maaf, terdapat kesalahan basis data, mohon hubungi pihak puskesmas.',
                 'url' => '/'
             ], 400);
         }

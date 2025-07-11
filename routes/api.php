@@ -29,5 +29,5 @@ Route::middleware(['session.exists', 'account.exists'])->group(function () {
     Route::get('/account/fetch', [AccountController::class, 'fetch']);
 
     Route::get('/patients/fetch', [PatientController::class, 'fetch']);
-    Route::get('/patients/search', [PatientController::class, 'search']);
+    Route::get('/patients/verify', [PatientController::class, 'verify']);
 });

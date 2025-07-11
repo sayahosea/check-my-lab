@@ -18,25 +18,28 @@ function noData(msg) {
     patientListBody.appendChild(newData);
 }
 
-el('previous-page').onclick = async(e) => {
-
-	const page = el('current-page').getAttribute('data-page');
+let prevPage = el('previous-page');
+if (prevPage) {
+prevPage.onclick = async(e) => {
+    const page = el('current-page').getAttribute('data-page');
     const intPage = Number(page);
     if (isNaN(intPage)) return;
+    if (intPage < 2) return;
 
     const filter = el('filter').value;
     const searchQuery = el('query').value;
 
-    console.log(filter, searchQuery)
     if (filter && searchQuery) {
         return await getData(intPage - 1, filter, searchQuery);
     };
 
     await getData(intPage - 1);
+    }
 }
 
-el('next-page').onclick = async(e) => {
-
+let nextPage = el('next-page');
+if (nextPage) {
+nextPage.onclick = async(e) => {
 	const page = el('current-page').getAttribute('data-page');
 	const intPage = Number(page);
 	if (isNaN(intPage)) return;
@@ -44,12 +47,12 @@ el('next-page').onclick = async(e) => {
     const filter = el('filter').value;
     const searchQuery = el('query').value;
 
-    console.log(filter, searchQuery)
     if (filter && searchQuery) {
         return await getData(intPage + 1, filter, searchQuery);
     };
 
     await getData(intPage + 1);
+}
 }
 
 async function getData(page, filter, searchQuery) {
@@ -69,22 +72,20 @@ async function getData(page, filter, searchQuery) {
 
 function render(data, page) {
     if (!data.length) {
-        setPage(page);
-        return noData("Tidak ada data di halaman " + page);
+        return;
     }
 
 	el('patientListBody').innerHTML = '';
 
 	for(let patient of data) {
 		const newData = document.createElement('tr');
-		newData.className = '*:text-gray-900 *:first:font-medium';
 
 		newData.innerHTML = `
-		<td class="px-3 py-2 whitespace-nowrap">${patient.patient_erm}</td>
-		<td class="px-3 py-2 whitespace-nowrap">${patient.patient_nik}</td>
-		<td class="px-3 py-2 whitespace-nowrap">${patient.full_name}</td>
-		<td class="px-3 py-2 whitespace-nowrap">${patient.phone_number}</td>
-		<td class="px-3 py-2 whitespace-nowrap">
+		<td>${patient.patient_erm ?? ''}</td>
+		<td>${patient.patient_nik ?? ''}</td>
+		<td>${patient.full_name ?? ''}</td>
+		<td>${patient.phone_number ?? ''}</td>
+		<td>
 			<a href="/patients/edit/${patient.account_id}">
 	            <button class="btn btn-info">Ubah</button>
 	        </a>
@@ -100,33 +101,58 @@ function render(data, page) {
 
 }
 
-el('search').onclick = async() => {
-    const filter = el('filter').value;
-    if (!filter) return;
+let search = el('search');
+if (search) {
+    el('search').onclick = async() => {
+        const filter = el('filter').value;
+        if (!filter) return;
 
-    const searchQuery = el('query').value;
-    if (!searchQuery) return;
+        const searchQuery = el('query').value;
+        if (!searchQuery) return;
 
-    try {
-        const request = await fetch(`/api/patients/fetch?page=1&filter=${filter}&query=${searchQuery}`);
-        const response = await request.json();
+        try {
+            const request = await fetch(`/api/patients/fetch?page=1&filter=${filter}&query=${searchQuery}`);
+            const response = await request.json();
 
-        if (!response.length) {
-            const patientListBody = el('patientListBody');
-            patientListBody.innerHTML = '';
+            if (!response.length) {
+                const patientListBody = el('patientListBody');
+                patientListBody.innerHTML = '';
 
-            const newData = document.createElement('tr');
-            newData.className = '*:text-gray-900 *:first:font-medium';
+                const newData = document.createElement('tr');
 
-            newData.innerHTML = `
-            <td class="px-3 py-2 whitespace-nowrap">Data tidak ditemukan</td>`
+                newData.innerHTML = `
+                <td>Data tidak ditemukan</td>`
 
-            patientListBody.appendChild(newData);
-            return;
-        };
+                patientListBody.appendChild(newData);
+                return;
+            };
 
-        render(response, 1)
-    } catch(err) {
-        console.log(err.stack);
+            render(response, 1)
+        } catch(err) {
+            console.log(err.stack);
+        }
+    }
+}
+
+const checkboxes = document.querySelectorAll('.checkbox');
+document.onclick = async(e) => {
+    let target = e.target;
+
+    if (target.className === 'checkbox') {
+        event.preventDefault();
+
+        try {
+            const checked = target.checked;
+            if (typeof checked !== 'boolean') return;
+
+            const accountId = target.getAttribute('data-account_id');
+            if (!accountId) return;
+
+            const request = await fetch(`/api/patients/verify?account_id=${accountId}&checked=${checked}`);
+
+            target.checked = checked;
+        } catch(err) {
+            console.error(err.message);
+        }
     }
 }

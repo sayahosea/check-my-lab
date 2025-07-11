@@ -10,8 +10,9 @@ return new class extends Migration
     {
         Schema::create('patient_accounts', function (Blueprint $table) {
             $table->uuid('account_id')->unique();
-            $table->char('patient_nik', 16)->unique();
-            $table->char('patient_erm', 8)->unique();
+            $table->char('patient_nik', 16)->unique()->nullable();
+            $table->char('patient_erm', 8)->unique()->nullable();
+            $table->tinyInteger('info_verified')->nullable();
         });
     }
 

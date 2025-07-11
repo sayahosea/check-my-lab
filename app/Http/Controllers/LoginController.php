@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\PatientAccount;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -47,20 +48,20 @@ class LoginController extends Controller
 
         if ($account_type == 'pasien') {
             $nik = $request->input('nik');
-            $user = DB::table('patient_accounts')->where('patient_nik', $nik)->first();
+            $user = DB::table('patients')->where('patient_nik', $nik)->first();
         } else {
-            $user = DB::table('user_accounts')->where(
+            $user = DB::table('puskesmas')->where(
                 'phone_number', $request->input('phone_number')
             )->first();
         }
 
         if ($user == null) {
-            session()->flash('alert_msg', 'Maaf, akun tidak ditemukan');
+            session()->flash('alert_msg', 'Maaf, tidak ada akun tersebut');
             return redirect('/login?akun=' . $account_type);
         }
 
         if ($account_type == 'puskesmas') {
-            $puskesmas = DB::table('puskesmas_accounts')
+            $puskesmas = DB::table('puskesmas')
                 ->select('password')
                 ->where('account_id', $user->account_id)->first();
 

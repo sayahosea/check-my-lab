@@ -11,8 +11,8 @@ return new class extends Migration
         Schema::create('user_accounts', function (Blueprint $table) {
             $table->uuid('account_id')->primary();
             $table->enum('role', ['PASIEN', 'MEDIS', 'LAB']);
-            $table->string('full_name', 60);
-            $table->string('phone_number', 20);
+            $table->string('full_name', 60)->nullable();
+            $table->string('phone_number', 15)->nullable();
         });
     }
 

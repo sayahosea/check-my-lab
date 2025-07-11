@@ -11,11 +11,12 @@ return new class extends Migration
     public function up(): void
     {
         DB::statement("
-            CREATE VIEW puskesmas AS
+            CREATE VIEW IF NOT EXISTS puskesmas AS
             SELECT
                 ua.account_id,
                 ua.full_name,
                 ua.phone_number,
+                ua.role,
                 pa.password
             FROM user_accounts ua
             JOIN puskesmas_accounts pa ON ua.account_id = pa.account_id;

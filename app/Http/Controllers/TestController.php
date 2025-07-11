@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -12,7 +13,6 @@ class TestController extends Controller
     public function index(Request $request)
     {
         $acc_id = $request->session()->get('account_id');
-
         $user = $request->attributes->get('user');
         $role = $user->role;
 
@@ -77,46 +77,50 @@ class TestController extends Controller
 
     public function store(Request $request)
     {
-        $user = $request->attributes->get('user');
-        $role = $user->role;
+        try {
+            $user = $request->attributes->get('user');
+            $role = $user->role;
 
-        if ($role != 'LAB') return redirect('/dashboard');
+            if ($role != 'LAB') return redirect('/dashboard');
 
-        $validator = Validator::make($request->all(), [
-            'nik' => 'required|string|min:16|max:16',
-            'file' => 'required|mimes:pdf|max:70240'
-        ]);
+            $validator = Validator::make($request->all(), [
+                'nik' => 'required|string|min:16|max:16',
+                'file' => 'required|mimetypes:application/pdf'
+            ]);
 
-        if ($validator->fails()) {
-            session()->flash('alert_msg', 'Data hasil uji tidak valid. Mohon periksa kembali');
-            return redirect('/tests/upload');
+            if ($validator->fails()) {
+                session()->flash('alert_msg', 'Data hasil uji tidak valid. Mohon periksa kembali');
+                return redirect('/tests/upload');
+            }
+
+            $nik = $request->input('nik');
+
+            $patient_acc = DB::table('patients')->where('patient_nik', $nik)->first();
+            if (!$patient_acc) {
+                session()->flash('alert_msg', 'Tidak ada akun pasien dengan NIK tersebut');
+                return redirect('/tests/upload');
+            }
+
+            $file = $request->file('file');
+            $fileContents = file_get_contents($file->getRealPath());
+
+            $id = Str::random(10);
+
+            DB::table('test_results')->insert([
+                "test_id" => $id,
+                "account_id" => $patient_acc->account_id,
+                "test_file" => $fileContents
+            ]);
+
+            DB::table('test_trackers')->insert([
+                "test_id" => $id,
+                "activity" => "RESULT_TIME"
+            ]);
+
+            return redirect('/tests');
+        } catch (QueryException $ahhahh) {
+            return $ahhahh->getMessage() ?? 'a';
         }
-
-        $nik = $request->input('nik');
-
-        $patient_acc = DB::table('patients')->where('patient_nik', $nik)->first();
-        if (!$patient_acc) {
-            session()->flash('alert_msg', 'Tidak ada akun pasien dengan NIK tersebut');
-            return redirect('/tests/upload');
-        }
-
-        $file = $request->file('file');
-        $fileContents = file_get_contents($file->getRealPath());
-
-        $id = Str::random(10);
-
-        DB::table('test_results')->insert([
-            "test_id" => $id,
-            "account_id" => $patient_acc->account_id,
-            "test_file" => $fileContents
-        ]);
-
-        DB::table('test_trackers')->insert([
-            "test_id" => $id,
-            "activity" => "RESULT_TIME"
-        ]);
-
-        return redirect('/tests');
     }
 
     public function showUploadForm(Request $request)

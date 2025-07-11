@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Dasbor Rekam Medis</title>
+    <title>Dashboard Rekam Medis</title>
     @vite('resources/css/app.css')
     <link rel="stylesheet" href="{{ asset('/addon.css') }}">
 </head>
 
-<body class="bg-gray-100 font-sans overflow-hidden">
+<body class="bg-gray-100 font-sans">
 
     <!-- Sidebar -->
     <x-sidebar.medis></x-sidebar.medis>
@@ -33,7 +33,7 @@
         <!-- Page Content -->
         <main class="ml-10 p-6">
             <div class="p-6 bg-gray-100 min-h-screen">
-                <h1 class="text-2xl font-bold mb-4">Dasbor UPT Puskesmas Baloi Permai</h1>
+                <h1 class="text-2xl font-bold mb-4">Dashboard UPT Puskesmas Baloi Permai</h1>
                 <!-- Statistik -->
                 <x-statistics
                     total_patients="{{ $total_patients }}"
