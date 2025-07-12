@@ -64,7 +64,7 @@
 
                         @if(count($regions) > 0)
                             <x-outbreak.region.edit></x-outbreak.region.edit>
-                            <x-outbreak.region.delete></x-outbreak.region.delete>
+                            <x-outbreak.delete></x-outbreak.delete>
 
                             <div class="overflow-x-auto">
                                 <!-- List of patients -->

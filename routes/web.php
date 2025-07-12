@@ -46,6 +46,7 @@ Route::middleware(['session.exists', 'account.exists'])->group(function () {
     Route::post('/outbreak/region/edit', [OutbreakController::class, 'editRegion']);
 
     Route::get('/outbreak/virus', [OutbreakController::class, 'listViruses']);
+    Route::get('/outbreak/virus/delete/{id}', [OutbreakController::class, 'deleteVirus']);
     Route::post('/outbreak/virus/add', [OutbreakController::class, 'addVirus']);
     Route::post('/outbreak/virus/edit', [OutbreakController::class, 'editVirus']);
 });

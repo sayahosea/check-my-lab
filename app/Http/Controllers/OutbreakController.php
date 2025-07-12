@@ -47,7 +47,7 @@ class OutbreakController extends Controller
 
         $virus_name = $request->input('name');
         $virus = DB::table('outbreak_viruses')->where('name', $virus_name)->first();
-        if ($virus) {
+        if ($virus && $virus->id != $request->input('id')) {
             session()->flash('alert_msg', 'Maaf, nama virus tersebut sudah digunakan');
             session()->flash('alert_color', 'alert-warning');
             return redirect('/outbreak/virus');
@@ -89,6 +89,24 @@ class OutbreakController extends Controller
         ]);
 
         session()->flash('alert_msg', 'Virus berhasil ditambahkan');
+        session()->flash('alert_color', 'alert-success');
+        return redirect('/outbreak/virus');
+    }
+
+    public function deleteVirus(Request $request, string $id) {
+        $role = Utility::userRole($request);
+        if ($role === 'PASIEN') return redirect('/dashboard');
+
+        $virus = DB::table('outbreak_viruses')->where('id', $id)->first();
+        if (!$virus) {
+            session()->flash('alert_msg', 'Maaf, virus tidak ditemukan');
+            session()->flash('alert_color', 'alert-error');
+            return redirect('/outbreak/virus');
+        }
+
+        DB::table('outbreak_viruses')->where('id', $id)->delete();
+
+        session()->flash('alert_msg', 'Virus ' . $virus->name . ' berhasil dihapus');
         session()->flash('alert_color', 'alert-success');
         return redirect('/outbreak/virus');
     }

@@ -55,31 +55,10 @@
                             <a class="btn btn-success" href="/outbreak/region">Kelola Daerah</a>
                         </div>
 
-                        <dialog id="edit_modal" class="modal">
-                            <div class="modal-box">
-                                <h3 class="text-lg font-bold text-center mb-6">Edit Virus</h3>
-
-                                <form action="{{ url('/outbreak/virus/edit') }}" method="POST" class="grid grid-cols-1 gap-4" enctype="multipart/form-data">
-                                    @csrf
-                                    <fieldset class="fieldset hidden">
-                                        <legend class="fieldset-legend">ID Virus</legend>
-                                        <input
-                                            name="id" id="id"
-                                            type="number" class="input" readonly required />
-                                    </fieldset>
-                                    <fieldset class="fieldset">
-                                        <legend class="fieldset-legend">Nama Virus</legend>
-                                        <input
-                                            name="name" id="name" minlength="3" maxlength="64"
-                                            type="text" class="input" required />
-                                    </fieldset>
-                                    <input type="submit" class="btn btn-info btn-block mt-2" value="Kirim">
-                                </form>
-                                <button class="btn btn-error btn-block mt-2"  onclick="edit_modal.close()">Batal</button>
-                            </div>
-                        </dialog>
-
                         @if(count($viruses) > 0)
+                            <x-outbreak.virus.edit></x-outbreak.virus.edit>
+                            <x-outbreak.delete></x-outbreak.delete>
+
                             <div class="overflow-x-auto">
                                 <!-- List of patients -->
                                 <table class="table">
@@ -98,9 +77,17 @@
                                                 <button
                                                     onclick="edit_modal.showModal()"
                                                     class="btn btn-info"
+                                                    data-action="EDIT"
                                                     data-virus-id="{{ $virus->id }}"
                                                     data-virus-name="{{ $virus->name }}"
-                                                >Kelola</button>
+                                                >Ubah</button>
+                                                <button
+                                                    onclick="delete_modal.showModal()"
+                                                    class="btn btn-error"
+                                                    data-action="DELETE"
+                                                    data-virus-id="{{ $virus->id }}"
+                                                    data-virus-name="{{ $virus->name }}"
+                                                >Hapus</button>
                                             </td>
                                         </tr>
                                     @empty
