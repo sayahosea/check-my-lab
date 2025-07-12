@@ -11,8 +11,8 @@ return new class extends Migration
         Schema::create('outbreak_regions', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name', 64);
-            $table->double('latitude', 8, 2);
-            $table->double('longitude', 8, 2);
+            $table->double('latitude');
+            $table->double('longitude');
         });
     }
 
