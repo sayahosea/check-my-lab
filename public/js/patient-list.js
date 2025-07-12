@@ -125,7 +125,7 @@ if (search) {
 
                 patientListBody.appendChild(newData);
                 return;
-            };
+            }
 
             render(response, 1)
         } catch(err) {

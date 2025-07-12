@@ -6,7 +6,7 @@ el('patientList').onclick = async(e) => {
     if (target.tagName === 'LI') {
         const accountId = target.dataset.id;
         if (!accountId || accountId === "" || accountId.length != 36) return;
-
+const el = (id) => document.getElementById()
         await getData(accountId, e);
     }
 }

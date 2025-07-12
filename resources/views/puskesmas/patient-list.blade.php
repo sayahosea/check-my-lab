@@ -49,7 +49,7 @@
                             <!-- Search input with icon -->
                             <div class="join">
                                 <select id="filter" class="select">
-                                    <option disabled selected>Pilih Filter</option>
+                                    <option disabtargetled selected>Pilih Filter</option>
                                     <option value="patient_erm">Nomor ERM</option>
                                     <option value="patient_nik">NIK</option>
                                     <option value="full_name">Nama Lengkap</option>

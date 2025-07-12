@@ -66,4 +66,11 @@ class Utility
         return DB::table('puskesmas_accounts')
             ->count();
     }
+
+    public static function userRole(Request $request): string
+    {
+        $user = $request->attributes->get('user');
+        if (!$user) return '';
+        return $user->role;
+    }
 }

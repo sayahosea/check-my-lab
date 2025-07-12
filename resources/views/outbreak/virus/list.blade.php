@@ -1,0 +1,117 @@
+@props([ 'role' => null, 'title' => 'Kelola Daftar Virus' ])
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>{{ $title }}</title>
+    @vite('resources/css/app.css')
+    <link rel="stylesheet" href="{{ asset('/addon.css') }}">
+</head>
+
+<body class="bg-gray-100 font-sans">
+
+<!-- Sidebar -->
+@if($role == "MEDIS")
+    <x-sidebar.medis></x-sidebar.medis>
+@else
+    <x-sidebar.lab></x-sidebar.lab>
+@endif
+
+<!-- Main content area -->
+<div class="ml-60 min-h-screen">
+    <!-- Navbar -->
+    <x-navbar></x-navbar>
+
+    @if(session('alert_msg'))
+        <div class="toast toast-top toast-center">
+            <div class="alert {{ session('alert_color') }}">
+                <span>{{ session('alert_msg') }}</span>
+            </div>
+        </div>
+    @endif
+
+    <!-- Page Content -->
+    <main class="ml-10 p-6">
+        <div class="p-6 bg-gray-100">
+
+            <h1 class="text-2xl font-bold text-black mb-4">{{ $title }}</h1>
+            <div class="bg-white shadow rounded p-4">
+
+                <div class="max-w-4xl">
+
+                    <div class="max-w-4xl mx-auto">
+
+                        <div class="mb-6">
+                            <a class="btn btn-success" href="/outbreak/virus/add">Tambah Virus</a>
+                            <a class="btn btn-info" href="/outbreak/location">Kelola Daerah</a>
+                        </div>
+
+                        <!-- Open the modal using ID.showModal() method -->
+                        <dialog id="edit_modal" class="modal">
+                            <div class="modal-box">
+                                <h3 class="text-lg font-bold text-center mb-6">Edit Virus</h3>
+
+                                <form action="{{ url('/outbreak/virus/edit') }}" method="POST" class="grid grid-cols-1 gap-4" enctype="multipart/form-data">
+                                    @csrf
+                                    <fieldset class="fieldset hidden">
+                                        <legend class="fieldset-legend">ID Virus</legend>
+                                        <input
+                                            name="id" id="id"
+                                            type="number" class="input" readonly required />
+                                    </fieldset>
+                                    <fieldset class="fieldset">
+                                        <legend class="fieldset-legend">Nama Virus</legend>
+                                        <input
+                                            name="name" id="name" minlength="3" maxlength="64"
+                                            type="text" class="input" required />
+                                    </fieldset>
+                                    <input type="submit" class="btn btn-info btn-block mt-2" value="Kirim">
+                                </form>
+                                <button class="btn btn-error btn-block mt-2"  onclick="edit_modal.close()">Batal</button>
+                            </div>
+                        </dialog>
+
+                        @if(count($viruses) > 0)
+                            <div class="overflow-x-auto">
+                                <!-- List of patients -->
+                                <table class="table">
+                                    <thead>
+                                    <tr>
+                                        <th>Nama Virus</th>
+                                        <th></th>
+                                    </tr>
+                                    </thead>
+
+                                    <tbody>
+                                    @forelse($viruses as $virus)
+                                        <tr>
+                                            <td>{{ $virus->name }}</td>
+                                            <td>
+                                                <button
+                                                    onclick="edit_modal.showModal()"
+                                                    class="btn btn-info"
+                                                    data-virus-id="{{ $virus->id }}"
+                                                    data-virus-name="{{ $virus->name }}"
+                                                >Kelola</button>
+                                            </td>
+                                        </tr>
+                                    @empty
+                                    @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
+                        @else
+                            <p>Belum ada data virus</p>
+                        @endif
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+</body>
+<script src="{{ asset('js/virus-list.js') }}"></script>
+</html>

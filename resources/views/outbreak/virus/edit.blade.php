@@ -38,40 +38,18 @@
     <main class="ml-10 p-6">
         <div class="p-6 bg-gray-100 min-h-screen">
 
-            <h1 class="text-2xl font-bold text-black mb-4">Kelola Outbreak</h1>
+            <h1 class="text-2xl font-bold text-black mb-4">Kelola Virus</h1>
             <div class="bg-white shadow rounded p-4">
-                <form action="{{ url('/outbreaks/edit/' . $location->id) }}" method="POST" class="grid grid-cols-1 gap-4" enctype="multipart/form-data">
+                <form action="{{ url('/outbreak/virus/edit/' . $virus->id) }}" method="POST" class="grid grid-cols-1 gap-4" enctype="multipart/form-data">
                     @csrf
-                    <input
-                        name="location_id" type="text"
-                        value="{{ $location->id }}" class="input hidden"
-                        readonly/>
-
                     <fieldset class="fieldset">
-                        <legend class="fieldset-legend">Nama Kecamatan</legend>
+                        <legend class="fieldset-legend">Nama Virus</legend>
                         <input
                             name="location_id" type="text"
-                            value="{{ $location->name }}" class="input"
+                            value="{{ $virus->name }}" class="input"
                             readonly/>
                     </fieldset>
-
-                    <fieldset class="fieldset">
-                        <legend class="fieldset-legend">Virus</legend>
-                        <fieldset class="fieldset">
-                            @forelse($virus_list as $virus)
-                                <label class="label">
-                                    <input type="checkbox" name="{{ $virus->id }}"
-                                           class="checkbox" />
-                                    Tuberkulosis
-                                </label>
-                            @empty
-                                <p>Belum ada daftar virus</p>
-                            @endforelse
-                        </fieldset>
-                    </fieldset>
-
                     <input type="submit" class="btn mt-2 btn-wide" value="Ubah Data">
-
                 </form>
                 <a class="btn mt-2 btn-wide btn-warning" href="{{ url('/outbreaks') }}">Batal</a>
             </div>

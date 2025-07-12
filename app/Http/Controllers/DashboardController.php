@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Utils\Utility;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
@@ -21,7 +20,7 @@ class DashboardController extends Controller
 
         $total_patients = Utility::getPatientTotal();
         $total_tests = Utility::getTestTotal();
-        $total_staffs = Utility::getstaffTotal();
+        $total_staffs = Utility::getStaffTotal();
         return view(
             strtolower($role) . '.dashboard',
             compact("total_patients", "total_tests", "total_staffs")

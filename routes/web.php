@@ -39,9 +39,14 @@ Route::middleware(['session.exists', 'account.exists'])->group(function () {
     Route::get('/settings', [SettingController::class, 'index'])->name('settings');
     Route::post('/settings', [SettingController::class, 'update']);
 
-    Route::get('/outbreaks', [OutbreakController::class, 'list']);
-    Route::get('/outbreaks/edit/{id}', [OutbreakController::class, 'updateForm']);
-    Route::post('/outbreaks/edit/{id}', [OutbreakController::class, 'update']);
+
+    Route::get('/outbreak/location', [OutbreakController::class, 'listLocations']);
+    Route::post('/outbreak/location/add', [OutbreakController::class, 'addLocation']);
+    Route::post('/outbreak/location/edit', [OutbreakController::class, 'editLocation']);
+
+    Route::get('/outbreak/virus', [OutbreakController::class, 'listViruses']);
+    Route::post('/outbreak/virus/add', [OutbreakController::class, 'addVirus']);
+    Route::post('/outbreak/virus/edit', [OutbreakController::class, 'editVirus']);
 });
 
 Route::get('/', function () {
