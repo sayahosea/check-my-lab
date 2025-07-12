@@ -40,9 +40,10 @@ Route::middleware(['session.exists', 'account.exists'])->group(function () {
     Route::post('/settings', [SettingController::class, 'update']);
 
 
-    Route::get('/outbreak/location', [OutbreakController::class, 'listLocations']);
-    Route::post('/outbreak/location/add', [OutbreakController::class, 'addLocation']);
-    Route::post('/outbreak/location/edit', [OutbreakController::class, 'editLocation']);
+    Route::get('/outbreak/region', [OutbreakController::class, 'listRegion']);
+    Route::get('/outbreak/region/delete/{id}', [OutbreakController::class, 'deleteRegion']);
+    Route::post('/outbreak/region/add', [OutbreakController::class, 'addRegion']);
+    Route::post('/outbreak/region/edit', [OutbreakController::class, 'editRegion']);
 
     Route::get('/outbreak/virus', [OutbreakController::class, 'listViruses']);
     Route::post('/outbreak/virus/add', [OutbreakController::class, 'addVirus']);

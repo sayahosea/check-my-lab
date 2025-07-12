@@ -7,7 +7,7 @@ function setCoor(latId, latValue, lngId, lngValue) {
 }
 
 function setMarker(marker, lat, lng) {
-    marker.bindPopup("Area Lokasi: " + lat + ", " + lng).openPopup();
+    marker.bindPopup("Area Daerah: " + lat + ", " + lng).openPopup();
 }
 
 function displayMap(target, elementId) {
@@ -55,7 +55,16 @@ document.onclick = async(e) => {
 
     if (target.nodeName === 'BUTTON') {
         const action = target.getAttribute('data-action');
-        if (!['EDIT', 'ADD'].includes(action)) return;
+        if (!['EDIT', 'ADD', 'DELETE'].includes(action)) return;
+
+        let id = target.getAttribute('data-region-id');
+
+        if (action === 'DELETE') {
+            const name = target.getAttribute('data-region-name');
+            el('delete_message').innerText = `Apakah Anda yakin ingin menghapus daerah ${name}?`;
+            el('delete_link').setAttribute('href', `/outbreak/region/delete/${id}`);
+            return;
+        }
 
         const mapId = target.getAttribute('data-map-id');
 
@@ -64,10 +73,9 @@ document.onclick = async(e) => {
             return;
         }
 
-        let id = target.getAttribute('data-location-id');
         if (!id) return;
 
-        el('name_edit').value = target.getAttribute('data-location-name');
+        el('name_edit').value = target.getAttribute('data-region-name');
         el('id').value = id;
 
         displayMap(target, mapId);

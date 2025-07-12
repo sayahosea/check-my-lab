@@ -43,12 +43,18 @@
 
                     <div class="max-w-4xl mx-auto">
 
+                        <x-outbreak.virus.add></x-outbreak.virus.add>
+
                         <div class="mb-6">
-                            <a class="btn btn-success" href="/outbreak/virus/add">Tambah Virus</a>
-                            <a class="btn btn-info" href="/outbreak/location">Kelola Daerah</a>
+                            <a href="/outbreak" class="btn btn-info">Lihat Peta</a>
+                            <button
+                                onclick="add_modal.showModal()"
+                                data-action="ADD"
+                                class="btn btn-success"
+                            >Tambah Virus</button>
+                            <a class="btn btn-success" href="/outbreak/region">Kelola Daerah</a>
                         </div>
 
-                        <!-- Open the modal using ID.showModal() method -->
                         <dialog id="edit_modal" class="modal">
                             <div class="modal-box">
                                 <h3 class="text-lg font-bold text-center mb-6">Edit Virus</h3>

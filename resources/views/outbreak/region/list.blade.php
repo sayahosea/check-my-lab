@@ -1,4 +1,4 @@
-@props([ 'role' => null, 'title' => 'Kelola Lokasi Wabah' ])
+@props([ 'role' => null, 'title' => 'Kelola Daerah Wabah' ])
 
 <!DOCTYPE html>
 <html lang="id">
@@ -44,9 +44,13 @@
 
                     <div class="max-w-4xl mx-auto">
 
-                        <x-outbreak.location.add></x-outbreak.location.add>
+                        <x-outbreak.region.add></x-outbreak.region.add>
 
                         <div class="mb-6">
+                            <a
+                                href="/outbreak"
+                                class="btn btn-info"
+                            >Lihat Peta</a>
                             <button
                                 onclick="add_modal.showModal()"
                                 data-action="ADD"
@@ -54,12 +58,13 @@
                                 data-form-lat-id="lat_add"
                                 data-form-lng-id="lng_add"
                                 class="btn btn-success"
-                            >Tambah Lokasi</button>
-                            <a class="btn btn-info" href="/outbreak/virus">Kelola Virus</a>
+                            >Tambah Daerah</button>
+                            <a class="btn btn-success" href="/outbreak/virus">Kelola Virus</a>
                         </div>
 
-                        @if(count($locations) > 0)
-                            <x-outbreak.location.edit></x-outbreak.location.edit>
+                        @if(count($regions) > 0)
+                            <x-outbreak.region.edit></x-outbreak.region.edit>
+                            <x-outbreak.region.delete></x-outbreak.region.delete>
 
                             <div class="overflow-x-auto">
                                 <!-- List of patients -->
@@ -72,9 +77,9 @@
                                     </thead>
 
                                     <tbody>
-                                    @forelse($locations as $location)
+                                    @forelse($regions as $region)
                                         <tr>
-                                            <td>{{ $location->name }}</td>
+                                            <td>{{ $region->name }}</td>
                                             <td>
                                                 <button
                                                     onclick="edit_modal.showModal()"
@@ -83,11 +88,18 @@
                                                     data-map-id="map"
                                                     data-form-lat-id="lat_edit"
                                                     data-form-lng-id="lng_edit"
-                                                    data-location-id="{{ $location->id }}"
-                                                    data-location-name="{{ $location->name }}"
-                                                    data-latitude="{{ $location->latitude }}"
-                                                    data-longitude="{{ $location->longitude }}"
+                                                    data-region-id="{{ $region->id }}"
+                                                    data-region-name="{{ $region->name }}"
+                                                    data-latitude="{{ $region->latitude }}"
+                                                    data-longitude="{{ $region->longitude }}"
                                                 >Kelola</button>
+                                                <button
+                                                    onclick="delete_modal.showModal()"
+                                                    class="btn btn-error"
+                                                    data-action="DELETE"
+                                                    data-region-id="{{ $region->id }}"
+                                                    data-region-name="{{ $region->name }}"
+                                                >Hapus</button>
                                             </td>
                                         </tr>
                                     @empty
@@ -96,7 +108,7 @@
                                 </table>
                             </div>
                         @else
-                            <p>Belum ada daftar lokasi</p>
+                            <p>Belum ada daftar daerah</p>
                         @endif
 
                     </div>
@@ -107,5 +119,5 @@
 </div>
 </body>
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-<script src="{{ asset('js/location-list.js') }}"></script>
+<script src="{{ asset('js/region-list.js') }}"></script>
 </html>
