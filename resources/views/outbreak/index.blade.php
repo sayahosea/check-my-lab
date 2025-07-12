@@ -4,24 +4,18 @@
     <base target="_top">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
     <title>Peta Oubreak</title>
 
     @vite('resources/css/app.css')
-
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-
-    <style>
-        html, body {
-            height: 100%;
-            margin: 0;
-        }
-    </style>
 </head>
-<body class="bg-white min-h-screen flex items-center justify-center font-sans">
+<body class="bg-white min-h-screen flex items-end justify-center font-sans">
 
     <div class="flex items-center justify-end space-x-4 px-8 py-1 fixed top-0 inset-x-0">
+        <div>
+            <h1 class="text-2xl font-bold">PETA WABAH</h1>
+        </div>
         <!-- Logo dan Teks -->
         <div class="flex items-center">
             <img src="{{ asset('/logo/puskesmas.png') }}" alt="Logo" class="w-20 h-20" />
@@ -56,63 +50,29 @@
         </div>
     </div>
 
-
-
-    <div id="map" style="width: 100vh; height: 80vh;"></div>
-    <script>
-        const map = L.map('map').setView([1.0685, 104.0263], 12);
-
-        const tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-        }).addTo(map);
-
-        var viruses = {
-                'SAGULUNG': [],
-                'NONGSA': [],
-                'BATAM_KOTA': []
-            };
-
-        @foreach($viruses_sagulung as $virus_sagulung)
-            viruses[`{{ $location->location_id }}`].push(`{{ $viruses_sagulung->virus_id }}`);
-        @endforeach
-
-        @foreach($viruses_nongsa as $virus_nongsa)
-            viruses['NONGSA'].push(`{{ $virus_nongsa->virus_id }}`);
-        @endforeach
-
-        @if(count($viruses_batam_kota) > 0)
-        @foreach($viruses_batam_kota as $virus_batam_kota)
-            viruses['BATAM_KOTA'].push(`{{ $virus_batam_kota->virus_id }}`);
-        @endforeach
-        @endif
-
-            if (viruses['SAGULUNG'].length > 0) {
-            viruses['SAGULUNG'] = viruses['SAGULUNG'].join(', ')
-            .replace(/tbc/g, 'Tuberkulosis')
-            .replace(/hiv/g, 'HIV')
-            .replace(/ispa/g, 'ISPA')
-            }
-
-if (viruses['NONGSA'].length > 0) {
-            viruses['NONGSA'] = viruses['NONGSA'].join(', ')
-            .replace(/tbc/g, 'Tuberkulosis')
-            .replace(/hiv/g, 'HIV')
-            .replace(/ispa/g, 'ISPA')
-            }
-
-if (viruses['BATAM_KOTA'].length > 0) {
-            viruses['BATAM_KOTA'] = viruses['BATAM_KOTA'].join(', ')
-            .replace(/tbc/g, 'Tuberkulosis')
-            .replace(/hiv/g, 'HIV')
-            .replace(/ispa/g, 'ISPA')
-}
-
-        @foreach ($locations as $location)
-            var marker = L.marker([{{ $location->x_coor }}, {{ $location->y_coor }}]).addTo(map)
-            .bindPopup(`<b>Kecamatan {{ $location->location_name }}</b><br /> ${viruses[`{{ $location->location_id }}`]}`).openPopup;
-        @endforeach
-    </script>
-
+    <div id="map" style="width: 100vw; height: 85vh;"></div>
 </body>
+<script>
+    const map = L.map('map').setView([1.0685, 104.0263], 12);
+
+    const tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(map);
+
+    @forelse($regions as $region)
+        var marker = L.marker({ lat: {{ $region->latitude }} , lng: {{ $region->longitude }} }).addTo(map);
+
+        var viruses = [];
+        @forelse($outbreaks as $outbreak)
+            @if($outbreak->region_id == $region->id)
+                viruses.push(`{{ $outbreak->virus_name }}`);
+            @endif
+        @empty
+        @endforelse
+
+        marker.bindPopup(`<b>{{ $region->name }}</b><br>${viruses.length ? viruses.join(', ') : 'Tidak ada'}`);
+    @empty
+    @endforelse
+</script>
 </html>

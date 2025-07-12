@@ -22,13 +22,13 @@
             <fieldset class="fieldset">
                 <legend class="fieldset-legend">Latitude</legend>
                 <input
-                    name="latitude" id="lat_add"
+                    name="latitude"
                     type="number" class="input" readonly required />
             </fieldset>
             <fieldset class="fieldset">
                 <legend class="fieldset-legend">Longitude</legend>
                 <input
-                    name="longitude" id="lng_add"
+                    name="longitude"
                     type="number" class="input" readonly required />
             </fieldset>
             <input type="submit" class="btn btn-info btn-block mt-2" value="Kirim">

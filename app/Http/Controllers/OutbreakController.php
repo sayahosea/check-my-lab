@@ -11,7 +11,12 @@ class OutbreakController extends Controller
 {
     public function index()
     {
-        return 'a';
+        $outbreaks = DB::table('outbreaks as o')
+            ->join('outbreak_viruses as ov', 'o.virus_id', '=', 'ov.id')
+            ->select('o.*', 'ov.name as virus_name')
+            ->get();
+        $regions = DB::table('outbreak_regions')->get();
+        return view('outbreak.index', compact('outbreaks', 'regions'));
     }
 
     public function listRegion(Request $request) {
@@ -111,11 +116,32 @@ class OutbreakController extends Controller
         return redirect('/outbreak/virus');
     }
 
+    public function editRegionForm(Request $request, string $id) {
+        $role = Utility::userRole($request);
+        if ($role === 'PASIEN') return redirect('/dashboard');
+
+        $region = DB::table('outbreak_regions')->where('id', $id)->first();
+        if (!$region) {
+            session()->flash('alert_msg', 'Maaf, daerah tidak ditemukan');
+            session()->flash('alert_color', 'alert-danger');
+            return redirect('/outbreak/region');
+        }
+
+        $viruses = DB::table('outbreak_viruses')->get();
+        $viruses_in_region = DB::table('outbreaks')
+            ->where('region_id', $region->id)
+            ->select(['virus_id'])
+            ->pluck('virus_id')
+            ->toArray();
+        return view('outbreak.region.edit', compact('role', 'region', 'viruses', 'viruses_in_region'));
+    }
+
     public function editRegion(Request $request) {
         $role = Utility::userRole($request);
         if ($role === 'PASIEN') return redirect('/dashboard');
 
-        $validator = Validator::make($request->all(), [
+        $allData = $request->all();
+        $validator = Validator::make($allData, [
             'id' => 'required|int',
             'name' => 'required|string|min:3|max:64',
             'latitude' => 'required|numeric|between:-90,90',
@@ -128,12 +154,83 @@ class OutbreakController extends Controller
             return redirect('/outbreak/region');
         }
 
+        $region_id = $request->input('id');
         $region_name = $request->input('name');
         $region = DB::table('outbreak_regions')->where('name', $region_name)->first();
-        if ($region && $region->id != $request->input('id')) {
+        if ($region && $region->id != $region_id) {
             session()->flash('alert_msg', 'Maaf, nama daerah tersebut sudah digunakan');
             session()->flash('alert_color', 'alert-warning');
             return redirect('/outbreak/region');
+        }
+
+        // get viruses
+        $get_viruses = array_filter($allData, function($value, $key) {
+            return str_contains($key, 'virus-');
+        }, ARRAY_FILTER_USE_BOTH);
+
+        $viruses = array_keys($get_viruses);
+
+        $virus_list = DB::table('outbreak_viruses')->select(['id'])->pluck('id')->toArray();
+
+        if (!count($viruses)) {
+            DB::transaction(function () use ($region_id, $virus_list) {
+                foreach ($virus_list as $virus) {
+                    DB::table('outbreaks')
+                        ->where('region_id', $region_id)
+                        ->where('virus_id', $virus)->delete();
+                }
+            });
+        }
+
+        $virusIds = [];
+        if (!empty(array_filter($viruses))) {
+            foreach ($viruses as $virus) {
+                $split = explode('-', $virus);
+                $virus_id = $split[1] ?? null;
+
+                if ($virus_id) {
+                    $virus_exist = DB::table('outbreak_viruses')->where('id', $virus_id)->first();
+                    if ($virus_exist) {
+                        $virusIds[] = intval($virus_id);
+                    }
+                }
+            }
+        }
+
+        $virus_list = DB::table('outbreak_viruses')->select(['id'])->pluck('id')->toArray();
+        if (count($virus_list) > 0 && count($virusIds) > 0) {
+            foreach ($virusIds as $virus) {
+                if (in_array($virus, $virus_list)) {
+                    $virus_list = array_diff($virus_list, [$virus]);
+                }
+            }
+
+            if (count($virus_list) > 0) {
+                DB::transaction(function () use ($region_id, $virus_list) {
+                    foreach ($virus_list as $virus) {
+                        DB::table('outbreaks')
+                            ->where('region_id', $region_id)
+                            ->where('virus_id', $virus)->delete();
+                    }
+                });
+            }
+        }
+
+        if (count($virusIds) > 0) {
+            DB::transaction(function () use ($region_id, $virusIds) {
+                foreach ($virusIds as $virus) {
+
+                    $exists = DB::table('outbreaks')
+                        ->where('region_id', $region_id)
+                        ->where('virus_id', $virus)->first();
+                    if ($exists) continue;
+
+                    DB::table('outbreaks')->insert([
+                        'region_id' => $region_id,
+                        'virus_id' => $virus,
+                    ]);
+                }
+            });
         }
 
         DB::table('outbreak_regions')->where('id', $request->input('id'))->update([

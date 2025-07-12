@@ -118,8 +118,9 @@ class TestController extends Controller
             ]);
 
             return redirect('/tests');
-        } catch (QueryException $ahhahh) {
-            return $ahhahh->getMessage() ?? 'a';
+        } catch (QueryException $err) {
+            session()->flash('alert_msg', 'Terjadi kesalahan pada basis data');
+            return redirect('/tests/upload');
         }
     }
 

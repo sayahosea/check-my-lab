@@ -63,7 +63,6 @@
                         </div>
 
                         @if(count($regions) > 0)
-                            <x-outbreak.region.edit></x-outbreak.region.edit>
                             <x-outbreak.delete></x-outbreak.delete>
 
                             <div class="overflow-x-auto">
@@ -81,18 +80,10 @@
                                         <tr>
                                             <td>{{ $region->name }}</td>
                                             <td>
-                                                <button
-                                                    onclick="edit_modal.showModal()"
+                                                <a
+                                                    href="/outbreak/region/edit/{{ $region->id }}"
                                                     class="btn btn-info"
-                                                    data-action="EDIT"
-                                                    data-map-id="map"
-                                                    data-form-lat-id="lat_edit"
-                                                    data-form-lng-id="lng_edit"
-                                                    data-region-id="{{ $region->id }}"
-                                                    data-region-name="{{ $region->name }}"
-                                                    data-latitude="{{ $region->latitude }}"
-                                                    data-longitude="{{ $region->longitude }}"
-                                                >Kelola</button>
+                                                >Kelola</a>
                                                 <button
                                                     onclick="delete_modal.showModal()"
                                                     class="btn btn-error"

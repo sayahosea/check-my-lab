@@ -1,9 +1,10 @@
 const el = (id) => document.getElementById(id);
+const elName = (name) => document.getElementsByName(name)[0];
 let map;
 
-function setCoor(latId, latValue, lngId, lngValue) {
-    el(latId).value = latValue;
-    el(lngId).value = lngValue;
+function setCoor(latValue, lngValue) {
+    elName('latitude').value = latValue;
+    elName('longitude').value = lngValue;
 }
 
 function setMarker(marker, lat, lng) {
@@ -11,8 +12,6 @@ function setMarker(marker, lat, lng) {
 }
 
 function displayMap(target, elementId) {
-    const latId = target.getAttribute('data-form-lat-id');
-    const lngId = target.getAttribute('data-form-lng-id');
     const currentLat = target.getAttribute('data-latitude');
     const currentLng = target.getAttribute('data-longitude');
 
@@ -21,33 +20,33 @@ function displayMap(target, elementId) {
 
     if (!currentLng || !currentLat) {
         map = L.map(elementId).setView([1.0701, 104.0251], 12);
-        setCoor(latId, null, lngId, null);
+        setCoor(null, null);
     } else {
         map = L.map(elementId).setView([currentLat, currentLng], 12);
         marker = L.marker({ lat: currentLat, lng: currentLng }).addTo(map);
         setMarker(marker, currentLat, currentLng);
-        setCoor(latId, currentLat, lngId, currentLng);
+        setCoor(currentLat, currentLng);
     }
+
+    marker = L.marker({ lat: currentLat, lng: currentLng }).addTo(map);
+
+    function onMapClick(e) {
+        console.log(marker)
+        marker.setLatLng(e.latlng);
+
+        const lat = e.latlng.lat.toFixed(6);
+        const lng = e.latlng.lng.toFixed(6);
+
+        setCoor(lat, lng);
+        setMarker(marker, currentLat, lng);
+    }
+
+    map.on('click', onMapClick);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
         attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     }).addTo(map);
-
-    function onMapClick(e) {
-        if (!marker) {
-            marker = L.marker(e.latlng).addTo(map);
-        } else {
-            marker.setLatLng(e.latlng);
-        }
-
-        const lat = e.latlng.lat.toFixed(6);
-        const lng = e.latlng.lng.toFixed(6);
-        setCoor(latId, lat, lngId, lng);
-        setMarker(marker, lat, lng);
-    }
-
-    map.on('click', onMapClick);
 }
 
 document.onclick = async(e) => {

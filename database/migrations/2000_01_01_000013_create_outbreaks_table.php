@@ -10,8 +10,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('outbreaks', function (Blueprint $table) {
-            $table->string('location_id', 64);
-            $table->string('virus_id', 64);
+            $table->integer('region_id');
+            $table->integer('virus_id');
         });
     }
 
